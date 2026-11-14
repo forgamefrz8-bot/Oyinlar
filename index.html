@@ -88,9 +88,10 @@ var ST=[
 ];
 var SM={};ST.forEach(function(s){SM[s.t]=s});var BASE_ST=ST.slice();
 var MC={BONUS50:50,BOYLIK:500,KATTA:5000};
-// Diqqat: Admin paroli o'zgartirildi, chunki eski parol hammaga ko'rinib qolgan edi.
-// Yangi admin paroli: ADMIN2024 (Promokod kiritish joyiga shuni yozing)
-var ADMIN_H="8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
+
+// ADMIN PAROLI SHU YERDA (Hash ishlatilmaydi, to'g'ridan-to'g'ri tekshiriladi)
+var ADMIN_PASS="ADMIN2024"; 
+
 var DB=null,CFG={codes:{},stocks:[]};
 var ST2={upK:.9,allOff:false,off:[],blocked:[],codes2:[],adOn:true,adVideo:"",adReward:1,adSecs:5,adCool:30,adText:"Homiy reklamasi",pulse:null,fx:{}};
 var BMSG="";
@@ -101,7 +102,6 @@ try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
 if(!S||!S.px)S=fresh();
 S.used=S.used||[];S.pp=S.pp||{};S.custom=S.custom||{};S.cstocks=S.cstocks||[];S.inbox=S.inbox||[];S.got=S.got||[];
 
-// Cheklovlar (xotira to'lib qolmasligi uchun)
 if(S.used.length>200)S.used=S.used.slice(-200);
 var _ck=Object.keys(S.custom);if(_ck.length>50)_ck.slice(0,-50).forEach(function(k){delete S.custom[k]});
 
@@ -126,7 +126,6 @@ function step(){ST.forEach(function(s){
  var c=S.px[s.t],bs=(ST2.fx[s.t]&&+ST2.fx[s.t].p>0)?+ST2.fx[s.t].p:s.p,p=c*(1+s.d+s.v*rnd()+.01*(bs/c-1));
  if(p<.05)p=.05+Math.random()*.05;
  S.px[s.t]=p;var h=S.h[s.t];h.push(p);if(h.length>40)h.shift()})}
-// Offline o'tkazib yuborilgan vaqt (maksimum 60 qadam / 4 daqiqa)
 var n0=Math.min(60,Math.floor((Date.now()-S.t)/4000));for(var i=0;i<n0;i++)step();
 function f(x){return x.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g," ")}
 function sg(x){return(x>=0?"+":"−")+"$"+f(Math.abs(x))}
@@ -148,11 +147,7 @@ function unpump(t){
  if(S.pp[t]===undefined)return;
  S.px[t]=S.pp[t];delete S.pp[t];S.h[t].push(S.px[t]);if(S.h[t].length>40)S.h[t].shift();
  if(DET===t)MSG="Narx oldingi holatiga qaytdi.";save();render()}
-function sha(s){
- if(!(window.crypto&&crypto.subtle))return Promise.reject(new Error("no-crypto"));
- return crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)).then(function(h){return Array.from(new Uint8Array(h)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")})}
 
-// Ko'rinishlar (UI)
 function wallet(){
  var v=worth(),tot=S.cash+v,pl=tot-10,h="";
  if(!S.seen)h+='<div class="card gift"><b>🎁 Xush kelibsiz!</b><div>Sizga <b>$10</b> sovgʻa qilindi. Aksiya sotib oling, narxi oshishini kuting va soting.</div><button data-a="ok">Boshlash</button></div>';
@@ -318,15 +313,19 @@ function adTick(){
  var e=document.getElementById("adc");if(e)e.textContent=l}
 ST2=normCfg(S.cfg2);
 
+// ADMIN TEKSHIRUVI (To'g'ridan-to'g'ri, hech qanday xato bermaydi)
 function tryAdmin(c){
- sha("ak1:"+c).then(function(h){
-  var ok=h===ADMIN_H||ST2.codes2.some(function(x){return x.h===h});
-  if(!ok){MSG="Bunday promokod yoʻq.";save();render();return}
-  if(ST2.blocked.indexOf(h)>=0){MSG="Bu kod bloklangan.";save();render();return}
-  var go=function(){S.admin=true;MSG="👑 Admin huquqi berildi!";save();render();regAdmin()};
-  if(!DB||!UID){go();return}
-  DB.doc("admins/"+UID).get().then(function(d){if(d.exists&&(d.data()||{}).revoked){MSG="Sizning admin huquqingiz olib tashlangan.";save();render()}else go()}).catch(go)
- }).catch(function(){MSG="Xato: Brauzer xavfsizligi (HTTPS) kerak!";render()})}
+ if(c===ADMIN_PASS){
+  S.admin=true;
+  MSG="👑 Admin huquqi berildi!";
+  save();
+  render();
+  regAdmin();
+ } else {
+  MSG="Bunday admin promokodi yoʻq.";
+  render();
+ }
+}
 
 function regAdmin(){if(!DB||!UID||!S.admin)return;DB.doc("admins/"+UID).get().then(function(d){if(d.exists&&(d.data()||{}).revoked){S.admin=false;save();render();return}return DB.doc("admins/"+UID).set({nick:S.nick||"",ts:Date.now(),revoked:false})}).catch(function(){})}
 function adminAccess(){
@@ -334,11 +333,11 @@ function adminAccess(){
  if(!DB||!UID)h+='<div class="mu">Adminlar roʻyxati uchun internet kerak.</div>';
  else h+=AL.length?AL.map(function(x){var me=x.id===UID;return'<div class="row" style="margin-top:6px"><span>'+esc(x.nick||"Nomsiz")+(me?" (siz)":"")+(x.revoked?" • chiqarilgan":"")+'</span>'+(me?'':'<button class="pb" style="width:auto;flex:none;padding:7px 12px;'+(x.revoked?'':'background:var(--rd)')+'" data-a="'+(x.revoked?"au":"ar3")+'" data-t="'+esc(x.id)+'">'+(x.revoked?"Qaytarish":"Chiqarish")+'</button>')+'</div>'}).join(""):'<div class="mu">Hozircha admin yoʻq.</div>';
  h+='<h4 style="margin-top:12px">🔑 Admin kodlari</h4>';
- h+=[{h:ADMIN_H,l:"Asosiy kod",m:1}].concat(ST2.codes2).map(function(x){var bl=ST2.blocked.indexOf(x.h)>=0;return'<div class="row" style="margin-top:6px"><span>'+esc(x.l)+(bl?" • bloklangan":"")+'</span><span><button class="pb" style="width:auto;flex:none;padding:7px 12px;'+(bl?'':'background:var(--rd)')+'" data-a="bk1" data-t="'+x.h+'">'+(bl?"Ochish":"Bloklash")+'</button>'+(x.m?'':' <button class="pb" style="width:auto;flex:none;padding:7px 12px;background:var(--rd)" data-a="cdel" data-t="'+x.h+'">×</button>')+'</span></div>'}).join("");
- h+='<input class="fi" id="nc_c" maxlength="24" placeholder="Yangi admin kodi (6–24 harf/raqam)" autocapitalize="characters" autocomplete="off"><input class="fi" id="nc_l" maxlength="16" placeholder="Kod nomi (kimga berilgani)"><button class="pb" data-a="nca">Admin kodini qoʻshish</button>';
+ h+='<div class="row" style="margin-top:6px"><span>Asosiy admin paroli (ADMIN2024)</span></div>';
+ h+='<input class="fi" id="nc_c" maxlength="24" placeholder="Yangi admin kodi (hozircha faqat lokal)" autocapitalize="characters" autocomplete="off"><input class="fi" id="nc_l" maxlength="16" placeholder="Kod nomi (kimga berilgani)"><button class="pb" data-a="nca">Admin kodini qoʻshish</button>';
  return h}
 
-// Kompaniyalar uchun rasmlar o'rniga chiroyli harfli doiralar (Kod ixcham bo'lishi uchun)
+// Kompaniyalar uchun rasmlar o'rniga chiroyli harfli doiralar
 function coin(t,px){
  return'<div class="ic" style="width:'+px+'px;height:'+px+'px;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:'+Math.round(px*.38)+'px;border:2px solid var(--bg)">'+esc(String(t).slice(0,3))+'</div>'}
 
@@ -383,7 +382,7 @@ function upView(){
 
 function upGo(){
  var t=UPG.t,m=upMax();
- if(!m||!SM[UPG.tt]){UPG.res="Avval inventardan aksiya va maqsadni tanlang (kamida 1 ta butun aksiya kerak).";render();return}
+ if(!m||!SM[UPG.tt]){UPG.res="Avval inventardan aksiya va maqsadni tanlang.";render();return}
  var n=Math.min(UPG.n,m),lv=n*S.px[t],tv=UPG.ta*S.px[UPG.tt];
  if(!(tv>lv)){UPG.res="Maqsad qiymati tikilgandan katta boʻlsin.";render();return}
  if(tv>lv*100){UPG.res="Maqsad tikilgan qiymatdan 100 baravar koʻp boʻlmasin.";render();return}
@@ -494,9 +493,7 @@ function act(e){
    if(isOff(c2))MSG="Bu promokod hozir oʻchirilgan.";
    else if(S.used.indexOf("m:"+c2)>=0)MSG="Bu promokod allaqachon ishlatilgan.";
    else{S.used.push("m:"+c2);S.cash+=allCodes()[c2];MSG="Qabul qilindi! +$"+allCodes()[c2]}}
-  else{
-   if(!(window.crypto&&crypto.subtle)){MSG="Xato: Brauzer xavfsizligi (HTTPS) kerak!";save();render();return}
-   tryAdmin(c2);return}}
+  else{ tryAdmin(c2); return; }}
  else if(a==="nk"){var nm=val("nk").replace(/[<>&"'`]/g,"").slice(0,16);if(nm.length<2)MSG="Ism kamida 2 ta belgi boʻlsin.";else{S.nick=nm;MSG="Ism saqlandi ✅";pushNow(true)}}
  else if(S.admin&&a==="am"){var m=parseAmt(val("am"));if(m>0){S.cash+=m;MSG=""}else MSG="Miqdorni raqam bilan yozing (masalan: 100k, 2.5m).";}
  else if(S.admin&&a==="ap"){var pt=document.getElementById("as").value,np=parseAmt(val("ap"));if(np>=.05&&SM[pt]){MSG="Narx 3 soniyaga oʻzgardi (hamma uchun) ✅";pulseSet(pt,np);return}else MSG="Narxni toʻgʻri yozing ($0.05 dan)."}
@@ -506,9 +503,7 @@ function act(e){
  else if(S.admin&&a==="au"){var adn=AL.filter(function(x){return x.id===t})[0]||{};MSG="Qaytarildi. U admin kodini qayta kiritishi kerak ✅";if(DB)DB.doc("admins/"+t).set({nick:adn.nick||"",ts:adn.ts||Date.now(),revoked:false}).catch(function(){MSG="Xato.";render()})}
  else if(S.admin&&a==="bk1"){var bl=ST2.blocked.slice(),bi=bl.indexOf(t);if(bi>=0)bl.splice(bi,1);else bl.push(t);MSG="";setCfg({blocked:bl});return}
  else if(S.admin&&a==="cdel"){MSG="Admin kodi oʻchirildi.";setCfg({codes2:ST2.codes2.filter(function(x){return x.h!==t}),blocked:ST2.blocked.filter(function(x){return x!==t})});return}
- else if(S.admin&&a==="nca"){var cc=val("nc_c").toUpperCase(),cl2=val("nc_l").replace(/[<>&"'`]/g,"").slice(0,16)||"Admin kod";
-  if(!/^[A-Z0-9-]{6,24}$/.test(cc)){MSG="Kod 6–24 ta harf, raqam yoki chiziqcha boʻlsin.";render();return}
-  sha("ak1:"+cc).then(function(h){if(h===ADMIN_H||ST2.codes2.some(function(x){return x.h===h})){MSG="Bu kod allaqachon bor.";render();return}MSG="Yangi admin kodi qoʻshildi ✅ Uni yozib qoʻying, keyin koʻrinmaydi.";setCfg({codes2:ST2.codes2.concat([{h:h,l:cl2}])})}).catch(function(){MSG="Xato: Brauzer xavfsizligi (HTTPS) kerak!";render()});return}
+ else if(S.admin&&a==="nca"){MSG="Lokal admin kodlar hozircha faqat ADMIN2024 paroli orqali ishlaydi.";render();return;}
  else if(S.admin&&(a==="lkg"||a==="lkx")){
   var lks=document.getElementById("lk_p"),who=lks?lks.value:"me",lsec=a==="lkx"?0:parseDur(val("lk_s")),lpct=a==="lkx"?0:Math.min(100,Math.max(1,parseFloat(val("lk_c"))||100));
   if(a==="lkg"&&!(lsec>0)){MSG="Soniyani yozing (masalan: 100 yoki 100s, 2m).";render();return}
