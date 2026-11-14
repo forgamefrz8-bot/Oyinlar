@@ -31,7 +31,19 @@ body{max-width:480px;margin:0 auto;padding:14px}
 .rs,.bk{background:none;border:0;color:var(--mu);font:inherit;margin:4px 0 8px;padding:6px 0}
 .rs{text-decoration:underline}
 .fi{display:block;width:100%;padding:10px 12px;margin:8px 0;border-radius:10px;border:2px solid var(--bar);background:var(--bg);color:var(--tx);font:inherit}
-.msg{min-height:20px;font-size:14px;margin-top:6px}.ic{border-radius:50%;object-fit:cover;flex:none;display:block;box-shadow: 0 2px 5px rgba(0,0,0,0.1)}.slots{display:grid;grid-template-columns:1fr 1fr;gap:8px}.slot{background:var(--bar);border-radius:12px;padding:12px;text-align:center;min-height:150px;display:flex;flex-direction:column;align-items:center;gap:4px}.ctr{display:flex;align-items:center;gap:14px;margin-top:6px}.ctr button{width:34px;height:34px;border:0;border-radius:8px;background:var(--card);color:var(--tx);font:inherit;font-size:20px;font-weight:700}.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.cell{border:2px solid var(--bar);border-radius:10px;background:var(--card);padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--tx);font:inherit;font-size:11px}.cell.on{border-color:var(--ac)}.cell:disabled{opacity:.4}.cell b{font-size:12px}.cnt{width:96px;margin:0;text-align:center;padding:7px}.bt .fi{margin:0;flex:2;min-width:0}@keyframes sp{0%{transform:rotate(0) scale(1)}50%{transform:rotate(360deg) scale(1.3)}100%{transform:rotate(720deg) scale(1)}}.ar{padding:10px 0;border-top:1px solid var(--bar);margin-top:8px}
+.msg{min-height:20px;font-size:14px;margin-top:6px}
+.ic{border-radius:50%;object-fit:cover;flex:none;display:block;box-shadow:0 2px 5px rgba(0,0,0,.1);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;border:2px solid var(--bg)}
+.slots{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.slot{background:var(--bar);border-radius:12px;padding:12px;text-align:center;min-height:150px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.ctr{display:flex;align-items:center;gap:14px;margin-top:6px}
+.ctr button{width:34px;height:34px;border:0;border-radius:8px;background:var(--card);color:var(--tx);font:inherit;font-size:20px;font-weight:700}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.cell{border:2px solid var(--bar);border-radius:10px;background:var(--card);padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--tx);font:inherit;font-size:11px}
+.cell.on{border-color:var(--ac)}.cell:disabled{opacity:.4}.cell b{font-size:12px}
+.cnt{width:96px;margin:0;text-align:center;padding:7px}
+.bt .fi{margin:0;flex:2;min-width:0}
+@keyframes sp{0%{transform:rotate(0) scale(1)}50%{transform:rotate(360deg) scale(1.3)}100%{transform:rotate(720deg) scale(1)}}
+.ar{padding:10px 0;border-top:1px solid var(--bar);margin-top:8px}
 .pb{display:block;width:100%}
 h4{margin:0 0 2px;font-size:15px}
 </style>
@@ -40,6 +52,7 @@ h4{margin:0 0 2px;font-size:15px}
 <div class="tabs" id="tb"></div>
 <div id="app"></div>
 <div class="mu" style="text-align:center;margin-top:8px">Oʻyin: haqiqiy pul va haqiqiy kompaniyalar emas. Narxlar tasodifiy.</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -75,7 +88,7 @@ var FIREBASE_CONFIG={
 })();
 </script>
 <script>
-// Asosiy ma'lumotlar
+// ASOSIY MA'LUMOTLAR
 var ST=[
 {t:"QSH",n:"Quyosh Energiya",p:2.4,v:.035,d:.002,c:"QUYOSH"},
 {t:"TZK",n:"Tezkor Yetkazish",p:1.1,v:.06,d:.001,c:"TEZKOR"},
@@ -89,7 +102,6 @@ var ST=[
 var SM={};ST.forEach(function(s){SM[s.t]=s});var BASE_ST=ST.slice();
 var MC={BONUS50:50,BOYLIK:500,KATTA:5000};
 
-// ADMIN PAROLI SHU YERDA (Hash ishlatilmaydi, to'g'ridan-to'g'ri tekshiriladi)
 var ADMIN_PASS="ADMIN2024"; 
 
 var DB=null,CFG={codes:{},stocks:[]};
@@ -154,10 +166,30 @@ function wallet(){
  h+='<div class="card"><div class="mu">Naqd pul</div><div class="n">$'+f(S.cash)+'</div></div>';
  h+='<div class="card"><div class="row"><span class="mu">Aksiyalar qiymati</span><b>$'+f(v)+'</b></div><div class="row" style="margin-top:8px"><span class="mu">Jami boylik</span><b>$'+f(tot)+'</b></div><div class="row" style="margin-top:8px"><span class="mu">Umumiy foyda / zarar</span><b class="'+(pl>=0?"up":"dn")+'">'+sg(pl)+'</b></div><div class="row" style="margin-top:8px"><span class="mu">Sotishdan olingan foyda</span><b class="'+(S.real>=0?"up":"dn")+'">'+sg(S.real)+'</b></div></div>';
  return h+'<div style="text-align:center"><button class="rs" data-a="rs">'+(Date.now()-rsT<4000?"Aniqmi? Yana bosing":"Boshidan boshlash")+'</button></div>'}
+
 function market(){
  return(BMSG?'<div class="card" style="font-weight:700">'+BMSG+'</div>':"")+ST.map(function(s){
   var h=S.h[s.t],p=S.px[s.t],ch=p/h[0]-1,up=ch>=0,H=S.hold[s.t],d=S.cash<.01?" disabled":"";
-  return'<div class="card" data-open="'+s.t+'"><div class="row"><div style="display:flex;gap:10px;align-items:center">'+coin(s.t,46)+'<div><b>'+s.n+'</b><div class="mu">'+s.t+' • sizda: '+(H?H.sh.toFixed(3):"0")+' ta</div></div></div>'+spark(h,up)+'</div><div class="row" style="margin-top:6px"><span style="font-size:22px;font-weight:800">$'+f(p)+'</span><b class="'+(up?"up":"dn")+'">'+(up?"▲ +":"▼ ")+(ch*100).toFixed(1)+'%</b></div><div class="bt"><input class="fi" id="bi_'+s.t+'" type="text" autocomplete="off" placeholder="Pul ($): 100, 5k, 2M"><button data-a="bx" data-t="'+s.t+'"'+d+'>Sotib ol</button><button data-a="b" data-t="'+s.t+'" data-v="0"'+d+'>Hammasi</button></div></div>'}).join("")}
+  var totalVal = H ? (H.sh * p) : 0;
+  var stat = H ? H.sh.toFixed(3) : "0";
+  
+  return'<div class="card" data-open="'+s.t+'">' +
+    '<div class="row"><div style="display:flex;gap:10px;align-items:center">'+coin(s.t,46)+
+    '<div><b>'+s.n+'</b><div class="mu">'+s.t+' • sizda: '+stat+' ta'+(H?' ($'+f(totalVal)+')':'')+'</div></div></div>'+
+    spark(h,up)+'</div>'+
+    '<div class="row" style="margin-top:6px"><span style="font-size:22px;font-weight:800">$'+f(p)+'</span>'+
+    '<b class="'+(up?"up":"dn")+'">'+(up?"▲ +":"▼ ")+(ch*100).toFixed(1)+'%</b></div>'+
+    
+    '<div class="bt" style="margin-top:12px">' +
+      '<input class="fi" id="bi_'+s.t+'" type="text" autocomplete="off" placeholder="Pul ($): 100, 5k, 2M">'+
+      '<button data-a="bx" data-t="'+s.t+'"'+d+'>Sotib ol</button>'+
+    '</div>'+
+    '<div class="bt">' +
+      '<button data-a="b" data-t="'+s.t+'" data-v="1x" style="background:var(--tx);color:var(--bg)"'+d+'>1 dona olish (1x)</button>'+
+      '<button data-a="b" data-t="'+s.t+'" data-v="0"'+d+'>Hammasini</button>'+
+    '</div>'+
+  '</div>'}).join("")}
+
 function port(){
  var k=Object.keys(S.hold),h="";
  h+=k.length?k.map(function(t){
@@ -168,6 +200,7 @@ function port(){
  if(S.admin){
   h+='<div class="card"><h4>👑 Admin panel</h4>'+adminPlayers()+'<input class="fi" id="am" type="text" autocomplete="off" placeholder="Qancha pul qoʻshish (masalan: 100k, 2.5m)"><button class="pb" data-a="am">Pul qoʻshish</button><select class="fi" id="as">'+ST.map(function(s){return'<option value="'+s.t+'">'+s.n+'</option>'}).join("")+'</select><input class="fi" id="ap" type="text" autocomplete="off" placeholder="Yangi narx $ (masalan: 50 yoki 2k)"><button class="pb" data-a="ap">3 soniyaga (hamma uchun)</button><button class="pb" style="margin-top:6px" data-a="af">Butun umrga (hamma uchun)</button><button class="pb" style="margin-top:6px;background:var(--rd)" data-a="ar2">Asl narxga qaytarish</button>'+adminSettings()+adminLuck()+adminAccess()+'<h4 style="margin-top:12px">Yangi promokod</h4><input class="fi" id="cn" maxlength="16" placeholder="Kod nomi (masalan: DOST100)" autocapitalize="characters"><input class="fi" id="ca" type="text" autocomplete="off" placeholder="Necha dollar beradi (masalan: 500, 10k)"><button class="pb" data-a="cn">Promokod qoʻshish</button><div class="mu" style="margin-top:8px">Qoʻshilgan kodlar: '+codeList()+'</div><h4 style="margin-top:12px">Yangi aksiya</h4><input class="fi" id="sn" maxlength="24" placeholder="Kompaniya nomi"><input class="fi" id="st" maxlength="5" placeholder="Belgi (2–5 harf, masalan: ABC)" autocapitalize="characters"><input class="fi" id="sp" type="text" autocomplete="off" placeholder="Boshlangʻich narx $ (masalan: 2.5)"><select class="fi" id="sv"><option value="0.02">Sekin oʻzgaradi</option><option value="0.04" selected>Oʻrtacha</option><option value="0.08">Tez oʻzgaradi</option></select><input class="fi" id="sk" maxlength="16" placeholder="Aksiya promokodi (boʻsh = belgi)" autocapitalize="characters"><button class="pb" data-a="an">Aksiya qoʻshish</button><div class="mu" style="margin-top:8px">Qoʻshilgan aksiyalar: '+stockList()+'</div><div class="mu" style="margin-top:10px">Aksiya kodlari: '+ST.map(function(s){return s.t+" — "+s.c}).join(", ")+'</div><div class="bt"><button class="s" data-a="ar">Kodlarni tiklash</button><button class="s" data-a="ax">Admindan chiqish</button></div></div>'}
  return h}
+
 function detail(t){
  var s=SM[t],h=S.h[t],p=S.px[t],ch=p/h[0]-1,up=ch>=0,H=S.hold[t],sh=H?H.sh:0,d=S.cash<.01?" disabled":"",ds=sh<1e-6?" disabled":"";
  var o='<button class="bk" data-a="bk">← Orqaga</button>';
@@ -313,17 +346,11 @@ function adTick(){
  var e=document.getElementById("adc");if(e)e.textContent=l}
 ST2=normCfg(S.cfg2);
 
-// ADMIN TEKSHIRUVI (To'g'ridan-to'g'ri, hech qanday xato bermaydi)
 function tryAdmin(c){
  if(c===ADMIN_PASS){
-  S.admin=true;
-  MSG="👑 Admin huquqi berildi!";
-  save();
-  render();
-  regAdmin();
+  S.admin=true;MSG="👑 Admin huquqi berildi!";save();render();regAdmin();
  } else {
-  MSG="Bunday admin promokodi yoʻq.";
-  render();
+  MSG="Bunday admin promokodi yoʻq.";render();
  }
 }
 
@@ -337,7 +364,6 @@ function adminAccess(){
  h+='<input class="fi" id="nc_c" maxlength="24" placeholder="Yangi admin kodi (hozircha faqat lokal)" autocapitalize="characters" autocomplete="off"><input class="fi" id="nc_l" maxlength="16" placeholder="Kod nomi (kimga berilgani)"><button class="pb" data-a="nca">Admin kodini qoʻshish</button>';
  return h}
 
-// Kompaniyalar uchun rasmlar o'rniga chiroyli harfli doiralar
 function coin(t,px){
  return'<div class="ic" style="width:'+px+'px;height:'+px+'px;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:'+Math.round(px*.38)+'px;border:2px solid var(--bg)">'+esc(String(t).slice(0,3))+'</div>'}
 
@@ -475,8 +501,20 @@ function act(e){
   if(!(sv>=.01))BMSG="Sotish uchun pul miqdorini yozing (masalan: 100, 5k).";
   else if(!HS2||sv>hv+1e-9)BMSG="Sizda faqat $"+fm(hv)+" qiymatida bor.";
   else{var fq=Math.min(1,sv/hv),shq=HS2.sh*fq,vq=shq*S.px[t],cq=HS2.cost*fq;S.cash+=vq;S.real+=vq-cq;HS2.sh-=shq;HS2.cost-=cq;if(HS2.sh<1e-6||fq>=.999999)delete S.hold[t];BMSG="✅ Sotildi: $"+fm(vq);if(sin)sin.value=""}}
- else if(a==="b"){var amt=+b.dataset.v||S.cash;amt=Math.min(amt,S.cash);if(amt<.01)return;
-  var H=S.hold[t]||(S.hold[t]={sh:0,cost:0});H.sh+=amt/S.px[t];H.cost+=amt;S.cash=Math.max(0,S.cash-amt)}
+ else if(a==="b"){
+   var H=S.hold[t]||(S.hold[t]={sh:0,cost:0});
+   if(b.dataset.v==="1x"){
+     var onePrice = S.px[t];
+     if(S.cash >= onePrice){
+       H.sh += 1; H.cost += onePrice; S.cash -= onePrice;
+     } else {
+       BMSG="1 dona olish uchun pul yetarli emas.";
+     }
+   } else {
+     var amt=+b.dataset.v||S.cash;amt=Math.min(amt,S.cash);if(amt<.01)return;
+     H.sh+=amt/S.px[t];H.cost+=amt;S.cash=Math.max(0,S.cash-amt);
+   }
+ }
  else if(a==="s"){var H2=S.hold[t];if(!H2)return;var fr=+b.dataset.f,sh=H2.sh*fr,v=sh*S.px[t],c=H2.cost*fr;
   S.cash+=v;S.real+=v-c;H2.sh-=sh;H2.cost-=c;if(H2.sh<1e-6||fr===1)delete S.hold[t]}
  else if(a==="sc"){var c1=val("si").toUpperCase();
