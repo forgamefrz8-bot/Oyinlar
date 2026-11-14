@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Aksiya oʻyini</title>
-<meta name="description" content="Xayoliy kompaniya aksiyalarini sotib oling, narxi oshganda soting va reytingda bellashing.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%93%88%3C/text%3E%3C/svg%3E">
 <style>
 :root{--bg:#f4f7f5;--card:#fff;--tx:#18231d;--mu:#6b7a72;--ac:#16a34a;--rd:#dc2626;--bar:#e3e9e5;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -12,7 +11,7 @@
 :root[data-theme="dark"]{--bg:#0e1511;--card:#17211b;--tx:#e8f1ec;--mu:#8fa196;--ac:#34d399;--rd:#f87171;--bar:#26332b;color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-body{max-width:480px;margin:0 auto;padding:14px}
+body{max-width:480px;margin:0 auto;padding:14px;padding-bottom:80px}
 .tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
 .tabs button{flex:1 1 30%;padding:11px 2px;border:0;border-radius:12px;background:var(--card);color:var(--tx);font:inherit;font-weight:600;font-size:12.5px}
 .tabs button.on{background:var(--ac);color:#fff}
@@ -46,6 +45,16 @@ body{max-width:480px;margin:0 auto;padding:14px}
 .ar{padding:10px 0;border-top:1px solid var(--bar);margin-top:8px}
 .pb{display:block;width:100%}
 h4{margin:0 0 2px;font-size:15px}
+
+/* CHAT UCHUN STILLAR */
+.chat-box{display:flex;flex-direction:column;height:60vh;background:var(--card);border-radius:14px;overflow:hidden}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.chat-msg{background:var(--bar);padding:8px 12px;border-radius:10px;max-width:80%;font-size:14px;line-height:1.4}
+.chat-msg.mine{background:var(--ac);color:#fff;align-self:flex-end}
+.chat-msg .sender{font-size:11px;opacity:.7;margin-bottom:2px;display:block;font-weight:bold}
+.chat-input{display:flex;gap:8px;padding:10px;background:var(--card);border-top:1px solid var(--bar)}
+.chat-input input{flex:1;margin:0;padding:12px;border-radius:20px;border:1px solid var(--bar);background:var(--bg);color:var(--tx)}
+.chat-input button{flex:none;width:44px;height:44px;border-radius:50%;padding:0;display:flex;align-items:center;justify-content:center;font-size:18px}
 </style>
 </head>
 <body>
@@ -80,7 +89,8 @@ var FIREBASE_CONFIG={
     onSnapshot:function(cb,eb){return r.onSnapshot(function(s){cb(wrap(s))},eb)}
    }},
    collection:function(p){var c=fdb.collection(P(p));return {
-    onSnapshot:function(cb,eb){return c.onSnapshot(function(s){cb({docs:s.docs.map(wrap)})},eb)}
+    onSnapshot:function(cb,eb){return c.onSnapshot(function(s){cb({docs:s.docs.map(wrap)})},eb)},
+    add:function(d){return c.add(d)}
    }}
   });
   return Promise.resolve(null);
@@ -88,7 +98,6 @@ var FIREBASE_CONFIG={
 })();
 </script>
 <script>
-// ASOSIY MA'LUMOTLAR
 var ST=[
 {t:"QSH",n:"Quyosh Energiya",p:2.4,v:.035,d:.002,c:"QUYOSH"},
 {t:"TZK",n:"Tezkor Yetkazish",p:1.1,v:.06,d:.001,c:"TEZKOR"},
@@ -101,19 +110,17 @@ var ST=[
 ];
 var SM={};ST.forEach(function(s){SM[s.t]=s});var BASE_ST=ST.slice();
 var MC={BONUS50:50,BOYLIK:500,KATTA:5000};
-
 var ADMIN_PASS="ADMIN2024"; 
-
 var DB=null,CFG={codes:{},stocks:[]};
 var ST2={upK:.9,allOff:false,off:[],blocked:[],codes2:[],adOn:true,adVideo:"",adReward:1,adSecs:5,adCool:30,adText:"Homiy reklamasi",pulse:null,fx:{}};
 var BMSG="";
 var K="aksiya1",S=null,TAB="w",DET=null,MSG="",down=false,rsT=0;
+var CHAT_MSGS=[]; 
 
 function fresh(){var px={},h={};ST.forEach(function(s){px[s.t]=s.p;h[s.t]=[s.p]});return{cash:10,hold:{},px:px,h:h,real:0,t:Date.now(),seen:false,admin:false,used:[],pp:{},custom:{},cstocks:[],inbox:[],got:[]}}
 try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
 if(!S||!S.px)S=fresh();
 S.used=S.used||[];S.pp=S.pp||{};S.custom=S.custom||{};S.cstocks=S.cstocks||[];S.inbox=S.inbox||[];S.got=S.got||[];
-
 if(S.used.length>200)S.used=S.used.slice(-200);
 var _ck=Object.keys(S.custom);if(_ck.length>50)_ck.slice(0,-50).forEach(function(k){delete S.custom[k]});
 
@@ -211,13 +218,52 @@ function detail(t){
 if(S.admin)o+='<div class="card"><h4>👑 Admin: narx</h4><div class="mu">Narxni 3 soniyaga oʻzgartiradi</div><input class="fi" id="dp" type="text" autocomplete="off" placeholder="Narx $ (masalan: 50 yoki 2k)"><button class="pb" data-a="dp" data-t="'+t+'">3 soniyaga (hamma uchun)</button><button class="pb" style="margin-top:6px" data-a="df" data-t="'+t+'">Butun umrga (hamma uchun)</button><button class="pb" style="margin-top:6px;background:var(--rd)" data-a="dr" data-t="'+t+'">Asl narxga qaytarish</button></div>';
  return o}
 
+// CHAT / POCHTA BO'LIMI
+function chatView(){
+ var h='<div class="chat-box"><div class="chat-msgs" id="chat_msgs">';
+ if(!DB||!UID) h+='<div class="mu" style="text-align:center;margin-top:20px">Chat uchun internetga ulanish kerak.</div>';
+ else if(!CHAT_MSGS.length) h+='<div class="mu" style="text-align:center;margin-top:20px">Hozircha xabarlar yoʻq. Birinchi boʻlib yozing!</div>';
+ else {
+   h+=CHAT_MSGS.map(function(m){
+     var isMe = m.uid === UID;
+     return '<div class="chat-msg '+(isMe?'mine':'')+'">'+
+            '<span class="sender">'+esc(m.nick)+(isMe?' (siz)':'')+'</span>'+
+            esc(m.text)+'</div>';
+   }).join("");
+ }
+ h+='</div>';
+ if(DB&&UID) {
+   h+='<div class="chat-input"><input id="chat_in" type="text" placeholder="Xabar yozing..." maxlength="200" autocomplete="off"><button data-a="send_chat">➤</button></div>';
+ }
+ h+='</div>';
+ return h;
+}
+
+function sendChat(){
+ var val = document.getElementById("chat_in").value.trim();
+ if(!val || !DB || !UID) return;
+ if(!S.nick) { MSG="Chatga yozish uchun avval Portfel bo'limida ismingizni saqlang!"; render(); return; }
+ 
+ var d = { uid: UID, nick: S.nick, text: val, ts: Date.now() };
+ DB.collection("chat").add(d).then(function(){
+   document.getElementById("chat_in").value = "";
+ }).catch(function(e){
+   MSG="Xabar yuborilmadi: "+(e.message||"Xato"); render();
+ });
+}
+
 function render(){
  if(AD&&TAB==="a"&&!DET&&document.getElementById("adc"))return;
  if(UPG.spin&&TAB==="u"&&document.getElementById("ugr"))return;
  if(TT.spin&&TAB==="t"&&document.getElementById("ttsp"))return;
- var T=[["w","💵 Hamyon"],["m","📈 Bozor"],["p","💼 Portfel"],["g","🎁 Gift"],["a","📺 Reklama"],["u","⬆️ Upgrade"],["t","🎃 Trick"]];
+ 
+ var T=[["w","💵 Hamyon"],["m","📈 Bozor"],["p","💼 Portfel"],["g","🎁 Gift"],["a","📺 Reklama"],["u","⬆️ Upgrade"],["t","🎃 Trick"],["c","✉️ Poçta"]];
  document.getElementById("tb").innerHTML=T.map(function(x){return'<button data-a="tab" data-t="'+x[0]+'" class="'+(TAB===x[0]&&!DET?"on":"")+'">'+x[1]+'</button>'}).join("");
- document.getElementById("app").innerHTML=DET?detail(DET):TAB==="w"?wallet():TAB==="m"?market():TAB==="g"?giftView():TAB==="a"?adView():TAB==="u"?upView():TAB==="t"?ttView():port()}
+ 
+ document.getElementById("app").innerHTML=DET?detail(DET):TAB==="w"?wallet():TAB==="m"?market():TAB==="g"?giftView():TAB==="a"?adView():TAB==="u"?upView():TAB==="t"?ttView():TAB==="c"?chatView():port();
+ 
+ if(TAB==="c") { var cm=document.getElementById("chat_msgs"); if(cm) cm.scrollTop=cm.scrollHeight; }
+}
 
 function addCode(n,v){
  if(!/^[A-Z0-9]{3,16}$/.test(n)||n==="BOSHIDAN"||!(v>0)||v>1e6){MSG="Kod 3–16 ta harf yoki raqam, miqdor 0 dan katta boʻlsin.";render();return}
@@ -491,32 +537,72 @@ function act(e){
  else if(a==="bk"){DET=null;MSG=""}
  else if(a==="ok"){S.seen=true}
  else if(a==="rs"){if(Date.now()-rsT<4000){var ad=S.admin;newGame();S.admin=ad;rsT=0}else rsT=Date.now()}
+ else if(a==="send_chat"){sendChat();return;}
  else if(a==="bx"){
   var bin=document.getElementById("bi_"+t)||document.getElementById("bd"),bv=bin?parseAmt(bin.value):NaN;
   if(!(bv>=.01))BMSG="Pul miqdorini yozing (masalan: 100, 5k, 2M).";
   else if(bv>S.cash+1e-9)BMSG="Naqd pulingiz yetmaydi: $"+fm(S.cash);
-  else{var HB=S.hold[t]||(S.hold[t]={sh:0,cost:0});HB.sh+=bv/S.px[t];HB.cost+=bv;S.cash=Math.max(0,S.cash-bv);BMSG="✅ Sotib olindi: $"+fm(bv);if(bin)bin.value=""}}
+  else{
+    var HB=S.hold[t]||(S.hold[t]={sh:0,cost:0});
+    var sharesBought = bv/S.px[t];
+    HB.sh+=sharesBought; HB.cost+=bv; S.cash=Math.max(0,S.cash-bv);
+    
+    // NARX OSHISHI
+    var priceImpact = Math.min(0.20, sharesBought * 0.0005);
+    S.px[t] = S.px[t] * (1 + priceImpact);
+    S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift();
+    
+    BMSG="✅ Sotib olindi: $"+fm(bv)+" (Narx oshdi!)";
+    if(bin)bin.value="";
+  }
+ }
  else if(a==="sx"){
   var sin=document.getElementById("bd"),sv=sin?parseAmt(sin.value):NaN,HS2=S.hold[t],hv=HS2?HS2.sh*S.px[t]:0;
   if(!(sv>=.01))BMSG="Sotish uchun pul miqdorini yozing (masalan: 100, 5k).";
   else if(!HS2||sv>hv+1e-9)BMSG="Sizda faqat $"+fm(hv)+" qiymatida bor.";
-  else{var fq=Math.min(1,sv/hv),shq=HS2.sh*fq,vq=shq*S.px[t],cq=HS2.cost*fq;S.cash+=vq;S.real+=vq-cq;HS2.sh-=shq;HS2.cost-=cq;if(HS2.sh<1e-6||fq>=.999999)delete S.hold[t];BMSG="✅ Sotildi: $"+fm(vq);if(sin)sin.value=""}}
+  else{
+    var fq=Math.min(1,sv/hv),shq=HS2.sh*fq,vq=shq*S.px[t],cq=HS2.cost*fq;
+    S.cash+=vq;S.real+=vq-cq;HS2.sh-=shq;HS2.cost-=cq;
+    if(HS2.sh<1e-6||fq>=.999999)delete S.hold[t];
+    
+    // NARX TUSHISHI
+    var impactS = Math.min(0.20, shq * 0.0005);
+    S.px[t] = S.px[t] * (1 - impactS);
+    S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift();
+    
+    BMSG="✅ Sotildi: $"+fm(vq)+" (Narx tushdi!)";
+    if(sin)sin.value="";
+  }
+ }
  else if(a==="b"){
    var H=S.hold[t]||(S.hold[t]={sh:0,cost:0});
    if(b.dataset.v==="1x"){
      var onePrice = S.px[t];
      if(S.cash >= onePrice){
        H.sh += 1; H.cost += onePrice; S.cash -= onePrice;
-     } else {
-       BMSG="1 dona olish uchun pul yetarli emas.";
-     }
+       S.px[t] = S.px[t] * 1.002; 
+       S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift();
+       BMSG="✅ 1 dona sotib olindi. Narx oshdi!";
+     } else { BMSG="1 dona olish uchun pul yetarli emas."; }
    } else {
      var amt=+b.dataset.v||S.cash;amt=Math.min(amt,S.cash);if(amt<.01)return;
-     H.sh+=amt/S.px[t];H.cost+=amt;S.cash=Math.max(0,S.cash-amt);
+     var sharesB = amt/S.px[t];
+     H.sh+=sharesB;H.cost+=amt;S.cash=Math.max(0,S.cash-amt);
+     
+     var impactB = Math.min(0.20, sharesB * 0.0005);
+     S.px[t] = S.px[t] * (1 + impactB);
+     S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift();
    }
  }
- else if(a==="s"){var H2=S.hold[t];if(!H2)return;var fr=+b.dataset.f,sh=H2.sh*fr,v=sh*S.px[t],c=H2.cost*fr;
-  S.cash+=v;S.real+=v-c;H2.sh-=sh;H2.cost-=c;if(H2.sh<1e-6||fr===1)delete S.hold[t]}
+ else if(a==="s"){
+   var H2=S.hold[t];if(!H2)return;var fr=+b.dataset.f,sh=H2.sh*fr,v=sh*S.px[t],c=H2.cost*fr;
+   S.cash+=v;S.real+=v-c;H2.sh-=sh;H2.cost-=c;
+   if(H2.sh<1e-6||fr===1)delete S.hold[t];
+   
+   var impactS2 = Math.min(0.20, sh * 0.0005);
+   S.px[t] = S.px[t] * (1 - impactS2);
+   S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift();
+ }
  else if(a==="sc"){var c1=val("si").toUpperCase();
   if(!c1)MSG="Promokodni yozing.";
   else if(c1==="BOSHIDAN"){newGame();DET=null;TAB="w";MSG="🔄 Hammasi boshidan boshlandi. Admin paneli oʻchdi."}
@@ -541,7 +627,34 @@ function act(e){
  else if(S.admin&&a==="au"){var adn=AL.filter(function(x){return x.id===t})[0]||{};MSG="Qaytarildi. U admin kodini qayta kiritishi kerak ✅";if(DB)DB.doc("admins/"+t).set({nick:adn.nick||"",ts:adn.ts||Date.now(),revoked:false}).catch(function(){MSG="Xato.";render()})}
  else if(S.admin&&a==="bk1"){var bl=ST2.blocked.slice(),bi=bl.indexOf(t);if(bi>=0)bl.splice(bi,1);else bl.push(t);MSG="";setCfg({blocked:bl});return}
  else if(S.admin&&a==="cdel"){MSG="Admin kodi oʻchirildi.";setCfg({codes2:ST2.codes2.filter(function(x){return x.h!==t}),blocked:ST2.blocked.filter(function(x){return x!==t})});return}
- else if(S.admin&&a==="nca"){MSG="Lokal admin kodlar hozircha faqat ADMIN2024 paroli orqali ishlaydi.";render();return;}
+ else if(S.admin&&a==="nca"){
+  var newpass = val("nc_c").toUpperCase();
+  var newname = val("nc_l").slice(0,16) || "Nomsiz Admin";
+  if(!newpass || newpass.length < 4) { MSG="Kod kamida 4 ta belgidan iborat bo'lsin."; }
+  else {
+    // Yangi admin kodini bazaga saqlash (hashsiz, to'g'ridan-to'g'ri matn)
+    if(DB) {
+      DB.doc("config/adminpass").get().then(function(d){
+        var passes = d.exists ? (d.data().list || []) : [];
+        passes.push({ pass: newpass, name: newname, ts: Date.now() });
+        DB.doc("config/adminpass").set({ list: passes }).then(function(){
+          MSG="Yangi admin kodi qo'shildi: " + newpass + " (" + newname + ")";
+          render();
+        });
+      }).catch(function(){
+        MSG="Faqat lokal saqlandi (internet xatosi)";
+        S.adminCodes = S.adminCodes || [];
+        S.adminCodes.push(newpass);
+        save(); render();
+      });
+    } else {
+      S.adminCodes = S.adminCodes || [];
+      S.adminCodes.push(newpass);
+      save(); MSG="Faqat lokal saqlandi: " + newpass; render();
+    }
+  }
+  return;
+ }
  else if(S.admin&&(a==="lkg"||a==="lkx")){
   var lks=document.getElementById("lk_p"),who=lks?lks.value:"me",lsec=a==="lkx"?0:parseDur(val("lk_s")),lpct=a==="lkx"?0:Math.min(100,Math.max(1,parseFloat(val("lk_c"))||100));
   if(a==="lkg"&&!(lsec>0)){MSG="Soniyani yozing (masalan: 100 yoki 100s, 2m).";render();return}
@@ -585,13 +698,41 @@ document.addEventListener("pointerdown",function(){down=true});
 document.addEventListener("pointerup",function(){down=false});
 document.addEventListener("pointercancel",function(){down=false});
 setInterval(function(){step();save();var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},4000);
-if(window.claude&&claude.use)claude.use("db").then(function(d){if(!d)return;DB=d;DB.doc("config/stocks").onSnapshot(function(s){var x=s.exists?(s.data()||{}):{};CFG.stocks=Array.isArray(x.list)?x.list.map(function(a){return Object.assign({},a)}):[];applyStocks();var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});DB.doc("config/settings").onSnapshot(function(s){ST2=normCfg(s.exists?(s.data()||{}):S.cfg2);applyCfg2();var ae=document.activeElement;if(!down&&!AD&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});DB.doc("config/promos").onSnapshot(function(s){var x=s.exists?(s.data()||{}):{};CFG.codes=x.codes&&typeof x.codes==="object"?Object.assign({},x.codes):{};var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){})}).catch(function(){});
+
+if(window.claude&&claude.use)claude.use("db").then(function(d){
+ if(!d)return;DB=d;
+ 
+ DB.doc("config/stocks").onSnapshot(function(s){var x=s.exists?(s.data()||{}):{};CFG.stocks=Array.isArray(x.list)?x.list.map(function(a){return Object.assign({},a)}):[];applyStocks();var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});
+ DB.doc("config/settings").onSnapshot(function(s){ST2=normCfg(s.exists?(s.data()||{}):S.cfg2);applyCfg2();var ae=document.activeElement;if(!down&&!AD&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});
+ DB.doc("config/promos").onSnapshot(function(s){var x=s.exists?(s.data()||{}):{};CFG.codes=x.codes&&typeof x.codes==="object"?Object.assign({},x.codes):{};var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});
+ 
+ // CHAT XABARLARINI TINGLASH
+ DB.collection("chat").onSnapshot(function(s){
+   var arr = s.docs.map(function(q){ return Object.assign({id:q.id}, q.data()); });
+   arr.sort(function(a,b){ return a.ts - b.ts; });
+   CHAT_MSGS = arr.slice(-50);
+   if(TAB==="c") {
+     var cm = document.getElementById("chat_msgs");
+     if(cm) cm.scrollTop = cm.scrollHeight;
+     var ae=document.activeElement;
+     if(!down && !(ae && ae.id==="chat_in")) render();
+   }
+ }, function(){});
+ 
+ // ADMIN PAROLLARINI TINGLASH (Yangi qo'shilgan kodlarni tekshirish uchun)
+ DB.doc("config/adminpass").onSnapshot(function(s){
+   if(s.exists) { S.remotePasses = (s.data().list || []).map(function(x){ return x.pass; }); }
+ }, function(){});
+
+}).catch(function(){});
 
 if(window.claude&&claude.use)Promise.all([claude.use("db"),claude.use("user")]).then(function(r){
  var d=r[0],U=r[1];if(!d||!U)return;
  return Promise.resolve(U.id()).then(function(id){
   DB=d;UID=id;
+  
   DB.collection("players").onSnapshot(function(s){LP=s.docs.map(function(q){var x=Object.assign({},q.data()||{});x.id=q.id;return x});var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});
+  
   DB.doc("cmds/"+UID).onSnapshot(function(s){
    if(!s.exists)return;var d2=s.data()||{};if(!d2.n||d2.n===S.cn)return;S.cn=d2.n;
    if(d2.luck)applyLuck(d2.luck);
@@ -599,18 +740,37 @@ if(window.claude&&claude.use)Promise.all([claude.use("db"),claude.use("user")]).
    else if(typeof d2.add==="number")S.cash=Math.max(0,S.cash+d2.add);
    else if(typeof d2.set==="number"){S.cash=Math.max(0,d2.set);S.hold={}}
    save();pushNow(true);render()},function(){});
+   
   DB.collection("gifts").onSnapshot(function(s){
    S.got=S.got||[];S.inbox=S.inbox||[];var ch=false;
    s.docs.forEach(function(q){var d=q.data()||{};if(d.to!==UID||S.got.indexOf(q.id)>=0||!(+d.a>0))return;
     S.got.push(q.id);if(S.got.length>300)S.got.shift();S.cash+=+d.a;S.inbox.unshift({w:String(d.fn||"?").slice(0,16),a:+d.a});S.inbox=S.inbox.slice(0,10);ch=true;
     DB.doc("gifts/"+q.id).delete().catch(function(){})});
    if(ch){save();pushNow(true);var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()}},function(){});
+   
   DB.collection("admins").onSnapshot(function(s){
    AL=s.docs.map(function(q){var x=Object.assign({},q.data()||{});x.id=q.id;return x});
    var me=AL.filter(function(x){return x.id===UID})[0];if(me&&me.revoked&&S.admin){S.admin=false;MSG="Admin huquqingiz olib tashlandi.";save()}
    var ae=document.activeElement;if(!down&&!AD&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});
+   
   regAdmin();
-  pushNow(true);setInterval(pushNow,8000);render()})}).catch(function(){});
+  pushNow(true);setInterval(pushNow,8000);render();
+  
+ }).catch(function(){});
+});
+
+// Parolni tekshirish funksiyasini yangilash (masofaviy va lokal kodlar)
+tryAdmin = function(c){
+  var isRemote = (S.remotePasses || []).indexOf(c) >= 0;
+  var isLocal = (S.adminCodes || []).indexOf(c) >= 0;
+  
+  if(c === ADMIN_PASS || isRemote || isLocal){
+   S.admin=true;MSG="👑 Admin huquqi berildi!";save();render();regAdmin();
+  } else {
+   MSG="Bunday admin promokodi yoʻq.";render();
+  }
+};
+
 for(var pk in S.pp)unpump(pk);
 render();
 </script>
