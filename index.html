@@ -122,7 +122,7 @@ var FIREBASE_CONFIG={
 })();
 </script>
 <script>
-// IPHONE AKSIYASI QO'SHILDI (Narxi qimmat - $3000)
+// IPHONE AKSIYASI QO'SHILDI (Narxi qimmat)
 var ST=[
 {t:"QSH",n:"Quyosh Energiya",p:2.4,v:.035,d:.002,c:"QUYOSH"},
 {t:"TZK",n:"Tezkor Yetkazish",p:1.1,v:.06,d:.001,c:"TEZKOR"},
@@ -140,7 +140,7 @@ var ADMIN_PASS="ADMIN2024";
 var DB=null,CFG={codes:{},stocks:[]};
 var ST2={upK:.9,allOff:false,off:[],blocked:[],codes2:[],adOn:true,adVideo:"",adReward:1,adSecs:5,adCool:30,adText:"Homiy reklamasi",pulse:null,fx:{},marketImpact:true};
 var BMSG="";
-var K="aksiya3",S=null,TAB="w",DET=null,MSG="",down=false,rsT=0;
+var K="aksiya2",S=null,TAB="w",DET=null,MSG="",down=false,rsT=0;
 
 // Bank hisobi (Karta raqami tasodifiy generatsiya qilinadi, 1 marta)
 function fresh(){var px={},h={};ST.forEach(function(s){px[s.t]=s.p;h[s.t]=[s.p]});var cnum="8600 0000 "+Math.floor(1000+Math.random()*9000)+" "+Math.floor(1000+Math.random()*9000);return{cash:10,card:0,cardNum:cnum,hold:{},px:px,h:h,real:0,t:Date.now(),seen:false,admin:false,used:[],pp:{},custom:{},cstocks:[],inbox:[],got:[]}}
@@ -194,12 +194,12 @@ function unpump(t){
  S.px[t]=S.pp[t];delete S.pp[t];S.h[t].push(S.px[t]);if(S.h[t].length>40)S.h[t].shift();
  if(DET===t)MSG="Narx oldingi holatiga qaytdi.";save();render()}
 
-// HAMYON
+// HAMYON (Endi Naqd va Karta ko'rinadi)
 function wallet(){
  var v=worth(),tot=S.cash+S.card+v,pl=tot-10,h="";
  if(!S.seen)h+='<div class="card gift"><b>🎁 Xush kelibsiz!</b><div>Sizga <b>$10</b> sovgʻa qilindi. Aksiya sotib oling yoki bankka qoʻying.</div><button data-a="ok">Boshlash</button></div>';
  h+='<div class="bank-card"><div class="card-chip"></div><div class="card-balance"><span class="mu" style="color:#94a3b8;font-size:10px">KARTA BALANSI</span><b>$'+f(S.card)+'</b></div><div class="card-number">'+S.cardNum+'</div><div class="card-info"><div>KARTA EGASI<b>'+(S.nick||"O'yinchi").toUpperCase()+'</b></div><div>MUDDAT<b>12/29</b></div></div><div class="card-logo">UZCARD</div></div>';
- h+='<div class="card"><div class="mu">Naqd pul (Qo\'lda)</div><div class="n">$'+f(S.cash)+'</div><div class="bt"><button class="b" data-a="toCard">💳 Hammasini Kartaga o\'tkazish</button></div></div>';
+ h+='<div class="card"><div class="mu">Naqd pul (Qo\'lda)</div><div class="n">$'+f(S.cash)+'</div><div class="bt"><button class="b" data-a="toCard">💳 Kartaga o\'tkazish</button></div></div>';
  h+='<div class="card"><div class="row"><span class="mu">Aksiyalar qiymati</span><b>$'+f(v)+'</b></div><div class="row" style="margin-top:8px"><span class="mu">Jami boylik</span><b>$'+f(tot)+'</b></div><div class="row" style="margin-top:8px"><span class="mu">Umumiy foyda / zarar</span><b class="'+(pl>=0?"up":"dn")+'">'+sg(pl)+'</b></div><div class="row" style="margin-top:8px"><span class="mu">Sotishdan olingan foyda</span><b class="'+(S.real>=0?"up":"dn")+'">'+sg(S.real)+'</b></div></div>';
  return h}
 
@@ -272,4 +272,447 @@ function port(){
  h+=lbHtml();
  h+='<div class="card"><h4>🎟 Promokod</h4><div class="mu">Pul yoki admin huquqini beradi</div><input class="fi" id="pi" placeholder="Promokodni kiriting" autocomplete="off" autocapitalize="characters"><button class="pb" data-a="pc">Qoʻllash</button><div class="msg">'+MSG+'</div></div>';
  if(S.admin){
-  h+='<div class="card"><h4>👑 Admin panel</h4>'+adminPlayers()+'<input class="fi" id="am" type="text" autocomplete="off" placeholder="Qancha pul qoʻshish (masalan: 100k, 2.5m)"><button class="pb" data-a="am">Pul qoʻshish</button><select class="fi" id="as">'+ST.map(function(s){return'<option value="'+s.t+'">'+s.n+'</option>'}).join("")
+  h+='<div class="card"><h4>👑 Admin panel</h4>'+adminPlayers()+'<input class="fi" id="am" type="text" autocomplete="off" placeholder="Qancha pul qoʻshish (masalan: 100k, 2.5m)"><button class="pb" data-a="am">Pul qoʻshish</button><select class="fi" id="as">'+ST.map(function(s){return'<option value="'+s.t+'">'+s.n+'</option>'}).join("")+'</select><input class="fi" id="ap" type="text" autocomplete="off" placeholder="Yangi narx $ (masalan: 50 yoki 2k)"><button class="pb" data-a="ap">3 soniyaga (hamma uchun)</button><button class="pb" style="margin-top:6px" data-a="af">Butun umrga (hamma uchun)</button><button class="pb" style="margin-top:6px;background:var(--rd)" data-a="ar2">Asl narxga qaytarish</button>'+adminSettings()+adminLuck()+adminAccess()+'<h4 style="margin-top:12px">Yangi promokod</h4><input class="fi" id="cn" maxlength="16" placeholder="Kod nomi (masalan: DOST100)" autocapitalize="characters"><input class="fi" id="ca" type="text" autocomplete="off" placeholder="Necha dollar beradi (masalan: 500, 10k)"><button class="pb" data-a="cn">Promokod qoʻshish</button><div class="mu" style="margin-top:8px">Qoʻshilgan kodlar: '+codeList()+'</div><h4 style="margin-top:12px">Yangi aksiya</h4><input class="fi" id="sn" maxlength="24" placeholder="Kompaniya nomi"><input class="fi" id="st" maxlength="5" placeholder="Belgi (2–5 harf, masalan: ABC)" autocapitalize="characters"><input class="fi" id="sp" type="text" autocomplete="off" placeholder="Boshlangʻich narx $ (masalan: 2.5)"><select class="fi" id="sv"><option value="0.02">Sekin oʻzgaradi</option><option value="0.04" selected>Oʻrtacha</option><option value="0.08">Tez oʻzgaradi</option></select><input class="fi" id="sk" maxlength="16" placeholder="Aksiya promokodi (boʻsh = belgi)" autocapitalize="characters"><button class="pb" data-a="an">Aksiya qoʻshish</button><div class="mu" style="margin-top:8px">Qoʻshilgan aksiyalar: '+stockList()+'</div><div class="mu" style="margin-top:10px">Aksiya kodlari: '+ST.map(function(s){return s.t+" — "+s.c}).join(", ")+'</div><div class="bt"><button class="s" data-a="ar">Kodlarni tiklash</button><button class="s" data-a="ax">Admindan chiqish</button></div></div>'}
+ return h}
+
+function detail(t){
+ var s=SM[t],h=S.h[t],p=S.px[t],ch=p/h[0]-1,up=ch>=0,H=S.hold[t],sh=H?H.sh:0,d=S.cash<.01?" disabled":"",ds=sh<1e-6?" disabled":"";
+ var o='<button class="bk" data-a="bk">← Orqaga</button>';
+ o+='<div class="card"><div class="row"><div style="display:flex;gap:12px;align-items:center">'+coin(t,64)+'<div><b style="font-size:18px">'+s.n+'</b><div class="mu">'+t+'</div></div></div><b class="'+(up?"up":"dn")+'">'+(up?"▲ +":"▼ ")+(ch*100).toFixed(1)+'%</b></div><div class="n">$'+f(p)+'</div>'+spark(h,up,true)+'<div class="mu">Maksimum narx: $'+f(s.p*5)+'</div></div>';
+ o+='<div class="card"><div class="mu">Sizda bor</div><div class="n" style="font-size:32px">'+sh.toFixed(3)+' ta aksiya</div>'+(H?'<div class="row mu"><span>Qiymati: $'+f(sh*p)+' • olingan: $'+f(H.cost)+'</span><b class="'+(sh*p-H.cost>=0?"up":"dn")+'">'+sg(sh*p-H.cost)+'</b></div>':'<div class="mu">Hali sotib olmagansiz</div>')+'</div>';
+ o+='<div class="card"><div class="mu">Naqd pul: $'+f(S.cash)+'</div><input class="fi" id="bd" type="text" autocomplete="off" placeholder="Pul miqdori ($): 100, 5k, 2M, 1B"><div class="bt"><button data-a="bx" data-t="'+t+'"'+d+'>Sotib olish</button><button data-a="b" data-t="'+t+'" data-v="0"'+d+'>Hammasini olish</button></div><div class="bt"><button class="s" data-a="sx" data-t="'+t+'"'+ds+'>Sotish ($)</button><button class="s" data-a="s" data-t="'+t+'" data-f=".5"'+ds+'>Yarmini sot</button><button class="s" data-a="s" data-t="'+t+'" data-f="1"'+ds+'>Hammasini sot</button></div><div class="msg">'+BMSG+'</div></div>';
+ o+='<div class="card"><h4>🎟 Aksiya promokodi</h4><div class="mu">Narxni 3 soniyaga maksimumga chiqaradi</div><input class="fi" id="si" placeholder="Promokodni kiriting" autocomplete="off" autocapitalize="characters"><button class="pb" data-a="sc" data-t="'+t+'">Qoʻllash</button><div class="msg">'+MSG+'</div></div>';
+if(S.admin)o+='<div class="card"><h4>👑 Admin: narx</h4><div class="mu">Narxni 3 soniyaga oʻzgartiradi</div><input class="fi" id="dp" type="text" autocomplete="off" placeholder="Narx $ (masalan: 50 yoki 2k)"><button class="pb" data-a="dp" data-t="'+t+'">3 soniyaga (hamma uchun)</button><button class="pb" style="margin-top:6px" data-a="df" data-t="'+t+'">Butun umrga (hamma uchun)</button><button class="pb" style="margin-top:6px;background:var(--rd)" data-a="dr" data-t="'+t+'">Asl narxga qaytarish</button></div>';
+ return o}
+
+function render(){
+ if(AD&&TAB==="a"&&!DET&&document.getElementById("adc"))return;
+ if(UPG.spin&&TAB==="u"&&document.getElementById("ugr"))return;
+ if(TT.spin&&TAB==="t"&&document.getElementById("ttsp"))return;
+ 
+ var T=[["w","💵 Hamyon"],["m","📈 Bozor"],["p","💼 Portfel"],["b","🏦 Bank"],["l","💳 Olish"],["g","🎁 Gift"],["a","📺 Reklama"],["u","⬆️ Upgrade"],["t","🎃 Trick"]];
+ document.getElementById("tb").innerHTML=T.map(function(x){return'<button data-a="tab" data-t="'+x[0]+'" class="'+(TAB===x[0]&&!DET?"on":"")+'">'+x[1]+'</button>'}).join("");
+ 
+ document.getElementById("app").innerHTML=DET?detail(DET):TAB==="w"?wallet():TAB==="m"?market():TAB==="p"?port():TAB==="b"?bankView():TAB==="l"?borrowView():TAB==="g"?giftView():TAB==="a"?adView():TAB==="u"?upView():TAB==="t"?ttView():port();
+}
+
+// Bank o'tkazmalari mantiqi
+function transfer() {
+ var c2k = document.getElementById("ba_c2k"), k2c = document.getElementById("ba_k2c");
+ if(c2k && c2k.value) {
+   var a = parseAmt(c2k.value);
+   if(a > 0 && a <= S.cash) { S.cash -= a; S.card += a; MSG="Kartaga o'tkazildi: $"+fm(a); save(); render(); return; }
+   else MSG="Naqd pul yetarli emas.";
+ }
+ if(k2c && k2c.value) {
+   var a = parseAmt(k2c.value);
+   if(a > 0 && a <= S.card) { S.card -= a; S.cash += a; MSG="Kartadan yechildi: $"+fm(a); save(); render(); return; }
+   else MSG="Kartada mablag' yetarli emas.";
+ }
+}
+
+// Bankdan pul o'tkazish (Gift orqali)
+function gsend(){
+ var to=val("gt"),a=parseAmt(val("ga"));
+ if(!DB||!UID||!S.nick||!to||to===UID)return;
+ if(!(a>=.01)||a>1e12){MSG="Miqdorni toʻgʻri yozing (masalan: 5, 1k).";render();return}
+ a=Math.round(a*100)/100;
+ if(a>S.card+1e-9){MSG="Kartangizda mablag' yetmaydi.";render();return}
+ S.card=Math.max(0,S.card-a);save();pushNow(true);
+ var gid=to+"_"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+ DB.doc("gifts/"+gid).set({to:to,from:UID,fn:S.nick,a:a,type:"card"}).then(function(){MSG="Kartadan yuborildi ✅ $"+f(a);render()}).catch(function(){S.card+=a;save();MSG="Yuborib boʻlmadi, pul qaytarildi.";render()});
+ render()}
+
+function isOff(c){return ST2.allOff||ST2.off.indexOf(c)>=0}
+function normCfg(x){
+ var o=Object.assign({upK:.9,allOff:false,off:[],blocked:[],codes2:[],adOn:true,adVideo:"",adReward:1,adSecs:5,adCool:30,adText:"Homiy reklamasi",pulse:null,fx:{},marketImpact:true},x||{});
+ if(!Array.isArray(o.off))o.off=[];if(!o.fx||typeof o.fx!=="object")o.fx={};
+ o.adReward=Math.max(0,+o.adReward||0);o.adSecs=Math.min(60,Math.max(1,Math.floor(+o.adSecs)||5));o.adCool=Math.max(0,Math.floor(+o.adCool)||0);
+ o.adText=String(o.adText||"").replace(/[<>&"'`]/g,"").slice(0,200);o.adVideo=/^https:\/\/[^\s"'<>]{4,290}$/.test(String(o.adVideo||""))?String(o.adVideo):"";o.upK=Math.min(5,Math.max(.1,+o.upK||.9));
+ o.blocked=(Array.isArray(o.blocked)?o.blocked:[]).filter(function(h){return/^[0-9a-f]{64}$/.test(h)});
+ o.codes2=(Array.isArray(o.codes2)?o.codes2:[]).filter(function(x){return x&&/^[0-9a-f]{64}$/.test(x.h)}).map(function(x){return{h:x.h,l:String(x.l||"Admin kod").replace(/[<>&"'`]/g,"").slice(0,16)}});return o}
+function applyCfg2(){
+ var pu=ST2.pulse;S.fxs=S.fxs||{};
+ if(pu&&pu.id&&pu.id!==S.pid){S.pid=pu.id;if(Date.now()-(+pu.ts||0)<15000&&SM[pu.t]&&+pu.p>0)tempPrice(pu.t,+pu.p,"💥 Admin "+SM[pu.t].n+" narxini $"+f(+pu.p)+" ga chiqardi!")}
+ for(var t in ST2.fx){var e=ST2.fx[t];if(e&&e.id&&S.fxs[t]!==e.id&&SM[t]){S.fxs[t]=e.id;var np=+e.p>0?+e.p:SM[t].p;if(S.pp[t]!==undefined)S.pp[t]=np;else{S.px[t]=np;S.h[t].push(np);if(S.h[t].length>40)S.h[t].shift()}}}
+ save()}
+function setCfg(p){ST2=normCfg(Object.assign({},ST2,p));S.cfg2=ST2;save();applyCfg2();if(DB)DB.doc("config/settings").set(ST2).catch(function(){});render()}
+function fxSet(t,p){var fx=Object.assign({},ST2.fx);fx[t]={id:Date.now()+"-"+Math.random().toString(36).slice(2),p:p};setCfg({fx:fx})}
+function pulseSet(t,p){setCfg({pulse:{id:Date.now()+"-"+Math.random().toString(36).slice(2),ts:Date.now(),t:t,p:p}})}
+
+function adminSettings(){
+ var h='<h4 style="margin-top:12px">⚙️ Promokod boshqaruvi</h4><button class="pb" data-a="po"'+(ST2.allOff?' style="background:var(--rd)"':'')+'>Hamma promokodlar: '+(ST2.allOff?"❌ oʻchirilgan (yoqish)":"✅ yoqilgan (oʻchirish)")+'</button>';
+ var seen={},L=[];Object.keys(allCodes()).concat(ST.map(function(s){return s.c})).forEach(function(c){if(!seen[c]){seen[c]=1;L.push(c)}});
+ h+='<div class="mu" style="margin-top:8px">Alohida kodlar (bosib yoqing yoki oʻchiring):</div><div>'+L.map(function(c){var off=ST2.off.indexOf(c)>=0;return'<button class="pb" style="display:inline-block;width:auto;margin:4px 4px 0 0;padding:7px 10px;'+(off?'background:var(--rd)':'')+'" data-a="co" data-t="'+esc(c)+'">'+esc(c)+(off?" ❌":" ✅")+'</button>'}).join("")+'</div>';
+ h+='<h4 style="margin-top:12px">⬆️ Upgrade sozlamasi</h4><div class="mu">Ehtimol = tikilgan ÷ maqsad × koeffitsiyent (standart 0.9).</div><input class="fi" id="up_k" type="text" autocomplete="off" placeholder="Koeffitsiyent" value="'+ST2.upK+'"><button class="pb" data-a="upk">Koeffitsiyentni saqlash</button><h4 style="margin-top:12px">📺 Reklama sozlamasi</h4><button class="pb" data-a="ao"'+(ST2.adOn?'':' style="background:var(--rd)"')+'>Reklama bo‘limi: '+(ST2.adOn?"✅ yoqilgan":"❌ oʻchirilgan")+'</button>';
+ h+='<input class="fi" id="ad_r" type="text" autocomplete="off" placeholder="Mukofot ($)" value="'+ST2.adReward+'"><input class="fi" id="ad_s" type="number" min="1" max="60" placeholder="Reklama davomiyligi (soniya)" value="'+ST2.adSecs+'"><input class="fi" id="ad_c" type="number" min="0" placeholder="Keyingi reklamagacha kutish (soniya)" value="'+ST2.adCool+'"><input class="fi" id="ad_t" maxlength="200" placeholder="Reklama matni" value="'+esc(ST2.adText)+'"><button class="pb" data-a="asv">Reklamani saqlash</button>';
+ 
+ h+='<h4 style="margin-top:12px">📈 Bozor Sozlamasi</h4>';
+ h+='<button class="pb" data-a="toggleMarket"'+(ST2.marketImpact?'':' style="background:var(--rd)"')+'>Bozor ta\'siri (Narx oshishi): '+(ST2.marketImpact?"✅ Yoqilgan":"❌ O\'chirilgan")+'</button>';
+ return h}
+
+var AD=null,adIv=null;
+function adMedia(){return""}
+function adLeft(){var w=(S.adT||0)+(ST2.adCool||0)*1000-Date.now();return w>0?Math.ceil(w/1000):0}
+function adView(){
+ var h='<div class="card"><h4>📺 Reklama</h4>';
+ if(!ST2.adOn)return h+'<div class="mu">Reklama boʻlimi hozir oʻchirilgan.</div></div>';
+ if(AD){var l=Math.max(0,Math.ceil((AD.end-Date.now())/1000));return h+'<div class="mu">Reklama koʻrilmoqda…</div><div style="margin:12px 0;padding:18px;border-radius:12px;background:var(--bar)"><b>'+esc(ST2.adText)+'</b></div><div class="n" id="adc" style="text-align:center;font-size:30px">'+l+'</div><div class="mu" style="text-align:center">Tugagach $'+f(AD.rw)+' olasiz. Sahifadan chiqmang.</div></div>'}
+ var w=adLeft();
+ return h+'<div class="mu">Reklama koʻring va pul oling</div><div class="n" style="font-size:30px">+$'+f(ST2.adReward)+'</div><div class="mu">'+ST2.adSecs+' soniya davom etadi</div><button class="pb" data-a="adv"'+(w?" disabled":"")+'>'+(w?"Keyingisi: "+w+" soniyadan keyin":"▶ Reklama koʻrish")+'</button><div class="msg">'+MSG+'</div></div>'}
+function adStart(){if(!ST2.adOn||AD||adLeft())return;AD={end:Date.now()+ST2.adSecs*1000,rw:ST2.adReward};MSG="";clearInterval(adIv);adIv=setInterval(adTick,250);render()}
+function adTick(){
+ if(!AD){clearInterval(adIv);return}
+ if(document.hidden){AD=null;clearInterval(adIv);MSG="Reklama bekor qilindi (sahifadan chiqdingiz).";render();return}
+ var l=Math.ceil((AD.end-Date.now())/1000);
+ if(l<=0){S.cash+=AD.rw;S.adT=Date.now();MSG="Reklama koʻrildi! +$"+f(AD.rw);AD=null;clearInterval(adIv);save();pushNow(true);render();return}
+ var e=document.getElementById("adc");if(e)e.textContent=l}
+ST2=normCfg(S.cfg2);
+
+function tryAdmin(c){
+ if(c===ADMIN_PASS){
+  S.admin=true;MSG="👑 Admin huquqi berildi!";save();render();regAdmin();
+ } else {
+  MSG="Bunday admin promokodi yoʻq.";render();
+ }
+}
+
+function regAdmin(){if(!DB||!UID||!S.admin)return;DB.doc("admins/"+UID).get().then(function(d){if(d.exists&&(d.data()||{}).revoked){S.admin=false;save();render();return}return DB.doc("admins/"+UID).set({nick:S.nick||"",ts:Date.now(),revoked:false})}).catch(function(){})}
+function adminAccess(){
+ var h='<h4 style="margin-top:12px">👥 Adminlar</h4>';
+ if(!DB||!UID)h+='<div class="mu">Adminlar roʻyxati uchun internet kerak.</div>';
+ else h+=AL.length?AL.map(function(x){var me=x.id===UID;return'<div class="row" style="margin-top:6px"><span>'+esc(x.nick||"Nomsiz")+(me?" (siz)":"")+(x.revoked?" • chiqarilgan":"")+'</span>'+(me?'':'<button class="pb" style="width:auto;flex:none;padding:7px 12px;'+(x.revoked?'':'background:var(--rd)')+'" data-a="'+(x.revoked?"au":"ar3")+'" data-t="'+esc(x.id)+'">'+(x.revoked?"Qaytarish":"Chiqarish")+'</button>')+'</div>'}).join(""):'<div class="mu">Hozircha admin yoʻq.</div>';
+ h+='<h4 style="margin-top:12px">🔑 Admin kodlari</h4>';
+ h+='<div class="row" style="margin-top:6px"><span>Asosiy admin paroli (ADMIN2024)</span></div>';
+ h+='<input class="fi" id="nc_c" maxlength="24" placeholder="Yangi admin kodi (hozircha faqat lokal)" autocapitalize="characters" autocomplete="off"><input class="fi" id="nc_l" maxlength="16" placeholder="Kod nomi (kimga berilgani)"><button class="pb" data-a="nca">Admin kodini qoʻshish</button>';
+ return h}
+
+function coin(t,px){
+ return'<div class="ic" style="width:'+px+'px;height:'+px+'px;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:'+Math.round(px*.38)+'px;border:2px solid var(--bg)">'+esc(String(t).slice(0,3))+'</div>'}
+
+var UPG={t:"",n:1,tt:"",ta:1,res:"",spin:false,ang:0,last:0};
+function fm(x){x=+x;if(!isFinite(x))return"0";var a=Math.abs(x),i=0,u=["","k","M","B","T"];if(a<1000)return f(x);while(a>=1000&&i<4){a/=1000;i++}return(x<0?"−":"")+(+a.toFixed(2))+u[i]}
+function fc(n){n=Math.round(+n||0);return n<1000?String(n):fm(n)}
+document.addEventListener("change",function(e){
+ var id=e.target.id;if(id!=="ul_n"&&id!=="ut_n")return;
+ var v=Math.floor(parseAmt(e.target.value));if(!(v>=1))v=1;
+ if(id==="ul_n")UPG.n=Math.min(v,Math.max(1,upMax()));else UPG.ta=Math.min(v,1e12);
+ UPG.res="";UPG.last=0;render()});
+function chance(l,t){if(!(l>0)||!(t>0))return 0;return Math.min(95,Math.max(.01,l/t*ST2.upK*100))}
+function upMax(){var H=UPG.t&&SM[UPG.t]&&S.hold[UPG.t];return H?Math.floor(H.sh+1e-9):0}
+function upLV(){var m=upMax();return m?Math.min(UPG.n,m)*S.px[UPG.t]:0}
+function upQuick(k,v){
+ if(!UPG.tt||!SM[UPG.tt])return;var lv=upLV();if(!(lv>0))return;
+ var pr=S.px[UPG.tt],want=k==="x"?lv*v:lv*ST2.upK/(v/100),a=Math.min(1e12,Math.max(1,Math.round(want/pr)));
+ if(a*pr<=lv)a=Math.floor(lv/pr)+1;
+ UPG.ta=Math.min(1e12,a);UPG.res="";UPG.last=0}
+function ring(c,ang,txt){
+ var C=2*Math.PI*92,len=C*(c/100);
+ return'<div id="ugr" style="position:relative;width:220px;height:220px;margin:12px auto"><svg viewBox="0 0 220 220" width="220" height="220"><circle cx="110" cy="110" r="92" fill="none" stroke="var(--bar)" stroke-width="16"/><circle cx="110" cy="110" r="92" fill="none" stroke="var(--ac)" stroke-width="16" stroke-dasharray="'+len.toFixed(1)+' '+C.toFixed(1)+'" transform="rotate(-90 110 110)"/><g id="ugp" style="transform-origin:110px 110px;transform:rotate('+ang+'deg)"><polygon points="100,2 120,2 110,28" fill="var(--tx)"/></g></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><b style="font-size:28px">'+c.toFixed(2)+'%</b><span class="mu">'+txt+'</span></div></div>'}
+
+function upView(){
+ var inv=Object.keys(S.hold).filter(function(t){return SM[t]&&S.hold[t].sh>1e-9}),m=upMax();
+ if(!m)UPG.t="";
+ UPG.n=Math.max(1,Math.min(UPG.n,Math.max(1,m)));UPG.ta=Math.max(1,Math.min(1e12,UPG.ta));
+ var lv=m?UPG.n*S.px[UPG.t]:0,hasT=UPG.tt&&SM[UPG.tt],tv=hasT?UPG.ta*S.px[UPG.tt]:0,c=chance(lv,tv),ok=m>=1&&hasT&&tv>lv&&tv<=lv*100&&!UPG.spin;
+ var h=luckBadge()+'<div class="card"><h4>⬆️ Item Upgrader</h4><div class="mu">Butun aksiyalaringizni tikib, kattaroq qiymatga aylantiring. Yana aylantirish uchun kamida 1 ta butun aksiya kerak.</div></div>';
+ var ctr=function(am,ap,n,id){return'<div class="ctr"><button data-a="'+am+'">−</button><input class="fi cnt" id="'+id+'" type="text" autocomplete="off" value="'+fc(n)+'"><button data-a="'+ap+'">+</button></div>'};
+ h+='<div class="card"><div class="slots"><div class="slot">'+(m?coin(UPG.t,56)+'<b>'+esc(SM[UPG.t].n)+'</b><div class="mu">Qiymat: $'+fm(lv)+'</div>'+ctr("lm","lp",UPG.n,"ul_n"):'<div class="mu" style="margin:34px 0">Inventardan aksiya tanlang</div>')+'</div><div class="slot">'+(hasT?coin(UPG.tt,56)+'<b>'+esc(SM[UPG.tt].n)+'</b><div class="mu">Qiymat: $'+fm(tv)+'</div>'+ctr("tm","tpa",UPG.ta,"ut_n"):'<div class="mu" style="margin:34px 0">Maqsad aksiyani tanlang</div>')+'</div></div>';
+ h+=ring(c,UPG.spin?0:UPG.last,UPG.spin?"aylanmoqda…":"yutish ehtimoli");
+ if(UPG.res)h+='<div style="text-align:center;font-weight:700;margin-bottom:8px">'+UPG.res+'</div>';
+ var dis=function(on){return on&&m&&hasT&&!UPG.spin?"":" disabled"};
+ h+='<div class="bt">'+[2,4,8].map(function(k){return'<button data-a="um" data-v="'+k+'"'+dis(1)+'>×'+k+'</button>'}).join("")+[30,50,70].map(function(p){return'<button data-a="up" data-v="'+p+'"'+dis(1)+'>'+p+'%</button>'}).join("")+'</div>';
+ h+='<button class="pb" style="margin-top:10px" data-a="ug"'+(ok?"":" disabled")+'>⬆️ UPGRADE</button>';
+ if(m&&hasT&&!UPG.spin&&!ok)h+='<div class="mu" style="margin-top:6px;text-align:center">'+(tv>lv?"Maqsad tikilgan qiymatdan 100 baravar koʻp boʻlmasin.":"Maqsad qiymati tikilgandan katta boʻlsin.")+'</div>';
+ h+='</div>';
+ h+='<div class="card"><h4>Inventar (butun aksiyalar)</h4>'+(inv.length?'<div class="grid5">'+inv.map(function(t){var n=Math.floor(S.hold[t].sh+1e-9);return'<button class="cell'+(t===UPG.t?" on":"")+'" data-a="uL" data-t="'+t+'"'+(n<1?" disabled":"")+'>'+coin(t,36)+'<b>'+(n<1?"&lt;1":"×"+fc(n))+'</b></button>'}).join("")+'</div>':'<div class="mu">Hozircha aksiyangiz yoʻq. Bozor boʻlimidan sotib oling.</div>')+'</div>';
+ h+='<div class="card"><h4>Maqsad aksiya</h4><div class="grid5">'+ST.map(function(s){return'<button class="cell'+(s.t===UPG.tt?" on":"")+'" data-a="uT" data-t="'+s.t+'">'+coin(s.t,36)+'<b>$'+fm(S.px[s.t])+'</b></button>'}).join("")+'</div></div>';
+ return h}
+
+function upGo(){
+ var t=UPG.t,m=upMax();
+ if(!m||!SM[UPG.tt]){UPG.res="Avval inventardan aksiya va maqsadni tanlang.";render();return}
+ var n=Math.min(UPG.n,m),lv=n*S.px[t],tv=UPG.ta*S.px[UPG.tt];
+ if(!(tv>lv)){UPG.res="Maqsad qiymati tikilgandan katta boʻlsin.";render();return}
+ if(tv>lv*100){UPG.res="Maqsad tikilgan qiymatdan 100 baravar koʻp boʻlmasin.";render();return}
+ var cp=chance(lv,tv),win=Math.random()*100<effP(cp),H=S.hold[t];
+ var oldSh=H.sh;H.sh-=n;H.cost=H.sh<=1e-9?0:H.cost*(H.sh/oldSh);
+ if(H.sh<1e-6)delete S.hold[t];
+ if(win){var G=S.hold[UPG.tt]||(S.hold[UPG.tt]={sh:0,cost:0});G.sh+=UPG.ta;G.cost+=tv}
+ var arc=360*cp/100,j=.08+.84*Math.random();
+ UPG.ang=1800+(win?arc*j:arc+(360-arc)*j);
+ UPG.res=win?"🎉 Yutdingiz! "+fc(UPG.ta)+" ta "+esc(SM[UPG.tt].n)+" aksiyasini oldingiz ($"+fm(tv)+").":"💥 Omad kelmadi. "+fc(n)+" ta "+esc(SM[t].n)+" aksiyasi yondi ($"+fm(lv)+").";
+ UPG.spin=true;UPG.last=0;save();pushNow(true);render();
+ setTimeout(function(){var p=document.getElementById("ugp");if(p){p.style.transition="transform 3.2s cubic-bezier(.12,.7,.12,1)";p.style.transform="rotate("+UPG.ang+"deg)"}},60);
+ setTimeout(function(){UPG.spin=false;UPG.last=UPG.ang%360;if(!S.hold[UPG.t])UPG.t="";render()},3500)}
+
+function parseDur(x){x=String(x).trim().toLowerCase().replace(/\s+/g,"");var m=/^(\d+(?:\.\d+)?)(s|sek|m|min|h|soat)?$/.exec(x);if(!m)return NaN;var u={"":1,s:1,sek:1,m:60,min:60,h:3600,soat:3600};return Math.min(259200,Math.round(parseFloat(m[1])*u[m[2]||""]))}
+function luckOn(){return(S.luckU||0)>Date.now()&&(S.luckP||0)>0}
+function luckLeft(){return Math.max(0,Math.ceil(((S.luckU||0)-Date.now())/1000))}
+function effP(base){return luckOn()?base+(100-base)*S.luckP/100:base}
+function luckBadge(){return luckOn()?'<div class="card" style="background:var(--ac);color:#fff;font-weight:700">🍀 Luck faol: '+luckLeft()+' soniya ('+S.luckP+'%)</div>':""}
+function applyLuck(lk){
+ var sc=+lk.secs||0,ts=+lk.ts||0,base=Math.abs(Date.now()-ts)<120000?ts:Date.now();
+ S.luckU=sc>0?base+sc*1000:0;S.luckP=sc>0?Math.min(100,Math.max(0,+lk.pct||100)):0;save()}
+function sendLuck(who,secs,pct){
+ var lk={secs:secs,pct:pct,ts:Date.now()},n=Date.now()+"-"+Math.random().toString(36).slice(2),ids=[];
+ var msg=secs>0?"🍀 Luck berildi: "+secs+" soniya, "+pct+"% ✅":"Luck olib tashlandi ✅";
+ if(!DB||who==="me"){applyLuck(lk);MSG=msg;render();return}
+ ids=who==="*"?LP.filter(function(p){return p.nick}).map(function(p){return p.id}):[who];
+ if(!ids.length){MSG="Oʻyinchi topilmadi.";render();return}
+ if(ids.indexOf(UID)>=0)applyLuck(lk);
+ MSG=msg+(ids.length>1?" ("+ids.length+" ta oʻyinchi)":"");
+ Promise.all(ids.map(function(id){return DB.doc("cmds/"+id).set({n:n+id,luck:lk})})).then(render).catch(function(){MSG="Xato: luck yuborib boʻlmadi.";render()});render()}
+
+function adminLuck(){
+ var h='<h4 style="margin-top:12px">🍀 Luck</h4><div class="mu">Tanlangan oʻyinchi Trick or Treat va Upgraderda yutadi. 100% = har safar yutadi.</div>';
+ var L=(DB&&UID)?players(null):[];
+ h+='<select class="fi" id="lk_p">'+(DB&&UID?'<option value="*">Hamma oʻyinchilar</option>'+L.map(function(p){return'<option value="'+esc(p.id)+'"'+(p.id===UID?" selected":"")+'>'+esc(p.nick)+(p.id===UID?" (siz)":"")+'</option>'}).join(""):'<option value="me">Oʻzim</option>')+'</select>';
+ h+='<input class="fi" id="lk_s" type="text" autocomplete="off" placeholder="Necha soniya (masalan: 100s, 2m, 1h)" value="100s"><input class="fi" id="lk_c" type="text" autocomplete="off" placeholder="Luck foizi (1–100)" value="100"><div class="bt"><button data-a="lkg">Luck berish</button><button class="s" data-a="lkx">Luckni olib tashlash</button></div>';
+ return h}
+
+var TT={mode:"cash",t:"",res:"",spin:false};
+function ttView(){
+ var h=luckBadge()+'<div class="card"><h4>🎃 Trick or Treat</h4><div class="mu">Pul yoki aksiya tikasiz va Trick yoki Treat tanlaysiz. Yutsangiz tikkaningiz 2 barobar boʻladi, yutqazsangiz 0.</div></div>';
+ if(TT.spin)return h+'<div class="card" style="text-align:center" id="ttsp"><div style="font-size:88px;display:inline-block;animation:sp 1.2s ease-in-out">🎃</div><div class="mu">Aylanmoqda…</div></div>';
+ if(TT.res)h+='<div class="card" style="text-align:center;font-weight:700;font-size:17px">'+TT.res+'</div>';
+ var st=TT.mode==="stock",inv=Object.keys(S.hold).filter(function(t){return SM[t]&&S.hold[t].sh>1e-9}),sty=function(on){return on?"":' style="background:var(--bar);color:var(--tx)"'};
+ h+='<div class="card"><div class="bt"><button data-a="tkm" data-v="cash"'+sty(!st)+'>💵 Pul</button><button data-a="tkm" data-v="stock"'+sty(st)+'>📈 Aksiya</button></div>';
+ if(!st)h+='<div class="mu" style="margin-top:10px">Naqd pul: $'+fm(S.cash)+'</div>';
+ else{
+  h+='<div class="mu" style="margin-top:10px">Tikiladigan aksiyani tanlang:</div>';
+  h+=inv.length?'<div class="grid5" style="margin-top:6px">'+inv.map(function(t){return'<button class="cell'+(t===TT.t?" on":"")+'" data-a="tks" data-t="'+t+'">'+coin(t,36)+'<b>$'+fm(S.hold[t].sh*S.px[t])+'</b></button>'}).join("")+'</div>':'<div class="mu">Hozircha aksiyangiz yoʻq.</div>';
+  if(TT.t&&S.hold[TT.t]&&SM[TT.t])h+='<div class="mu" style="margin-top:8px">'+esc(SM[TT.t].n)+': $'+fm(S.hold[TT.t].sh*S.px[TT.t])+' bor</div>'}
+ h+='<input class="fi" id="tt_a" type="text" autocomplete="off" placeholder="Tikish miqdori ($): 100, 5k, 2M"><div class="bt"><button data-a="tkq" data-v=".25">¼</button><button data-a="tkq" data-v=".5">½</button><button data-a="tkq" data-v="1">Hammasi</button></div></div>';
+ h+='<div class="card"><div class="row"><span class="mu">Yutish ehtimoli</span><b style="font-size:22px">'+effP(50).toFixed(0)+'%</b></div><div class="bt" style="margin-top:10px"><button class="s" data-a="tp" data-v="trick" style="font-size:18px;padding:16px">🎃 Trick</button><button data-a="tp" data-v="treat" style="font-size:18px;padding:16px">🍬 Treat</button></div></div>';
+ return h}
+
+function ttGo(pick){
+ var inp=document.getElementById("tt_a"),a=inp?parseAmt(inp.value):NaN;
+ if(!(a>=.01)){TT.res="Tikish miqdorini yozing (masalan: 100, 5k).";render();return}
+ var HS=null,maxv=S.cash;
+ if(TT.mode==="stock"){HS=S.hold[TT.t];if(!HS||!SM[TT.t]){TT.res="Avval aksiyani tanlang.";render();return}maxv=HS.sh*S.px[TT.t]}
+ if(a>maxv+1e-9){TT.res="Yetarli emas: $"+fm(maxv)+" bor.";render();return}
+ var win=Math.random()*100<effP(50);
+ if(TT.mode==="cash"){S.cash=Math.max(0,S.cash-a);if(win)S.cash+=a*2}
+ else{var fr=Math.min(1,a/maxv),sh=HS.sh*fr,cs=HS.cost*fr;if(win){HS.sh+=sh;HS.cost+=cs}else{HS.sh-=sh;HS.cost-=cs;if(HS.sh<1e-6||fr>=.999999)delete S.hold[TT.t]}}
+ var face=win?pick:(pick==="treat"?"trick":"treat");
+ TT.res=(face==="treat"?"🍬 TREAT! ":"🎃 TRICK! ")+(win?"Yutdingiz: $"+fm(a)+" 2 barobar boʻldi ✅":"Yutqazdingiz: $"+fm(a)+" yondi ❌");
+ TT.spin=true;save();pushNow(true);render();
+ setTimeout(function(){TT.spin=false;render()},1300)}
+
+function val(id){var e=document.getElementById(id);return e?e.value.trim():""}
+
+function act(e){
+ var b=e.target.closest("button");
+ if(!b){if(e.target.closest("input,select,textarea"))return;var o=e.target.closest("[data-open]");if(o){DET=o.dataset.open;MSG="";BMSG="";render();window.scrollTo(0,0)}return}
+ var a=b.dataset.a,t=b.dataset.t;
+ if(a!=="bx"&&a!=="sx"&&a!=="b"&&a!=="s")BMSG="";
+ if(UPG.spin&&/^(uL|uT|lm|lp|tm|tpa|um|up|ug)$/.test(a))return;
+ if(TT.spin&&/^(tkm|tks|tkq|tp)$/.test(a))return;
+ if(a==="tab"){if(AD&&t!=="a"){AD=null;clearInterval(adIv);MSG="Reklama bekor qilindi."}else MSG="";TAB=t;DET=null}
+ else if(a==="bk"){DET=null;MSG=""}
+ else if(a==="ok"){S.seen=true}
+ else if(a==="borrow"){
+   if(S.cash+S.card < 10) { S.card += 10; MSG="💳 Plastik kartangizga $10 qarz qo'shildi!"; save(); pushNow(true); }
+ }
+ else if(a==="toCard"){
+   var amount = S.cash;
+   if(amount > 0) { S.cash -= amount; S.card += amount; MSG="Naqd pul ($"+fm(amount)+") kartaga o'tkazildi!"; save(); }
+ }
+ else if(a==="c2k" || a==="k2c"){
+   transfer();
+ }
+ else if(a==="bx"){
+  var bin=document.getElementById("bi_"+t)||document.getElementById("bd"),bv=bin?parseAmt(bin.value):NaN;
+  if(!(bv>=.01))BMSG="Pul miqdorini yozing (masalan: 100, 5k, 2M).";
+  else if(bv>S.cash+1e-9)BMSG="Naqd pulingiz yetmaydi: $"+fm(S.cash);
+  else{
+    var HB=S.hold[t]||(S.hold[t]={sh:0,cost:0});
+    var sharesBought = bv/S.px[t];
+    HB.sh+=sharesBought; HB.cost+=bv; S.cash=Math.max(0,S.cash-bv);
+    
+    if(ST2.marketImpact) {
+      var priceImpact = Math.min(0.20, sharesBought * 0.0005);
+      S.px[t] = S.px[t] * (1 + priceImpact);
+      S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift();
+      BMSG="✅ Sotib olindi: $"+fm(bv)+" (Narx oshdi!)";
+    } else {
+      BMSG="✅ Sotib olindi: $"+fm(bv);
+    }
+    if(bin)bin.value="";
+  }
+ }
+ else if(a==="sx"){
+  var sin=document.getElementById("bd"),sv=sin?parseAmt(sin.value):NaN,HS2=S.hold[t],hv=HS2?HS2.sh*S.px[t]:0;
+  if(!(sv>=.01))BMSG="Sotish uchun pul miqdorini yozing (masalan: 100, 5k).";
+  else if(!HS2||sv>hv+1e-9)BMSG="Sizda faqat $"+fm(hv)+" qiymatida bor.";
+  else{
+    var fq=Math.min(1,sv/hv),shq=HS2.sh*fq,vq=shq*S.px[t],cq=HS2.cost*fq;
+    S.cash+=vq;S.real+=vq-cq;HS2.sh-=shq;HS2.cost-=cq;
+    if(HS2.sh<1e-6||fq>=.999999)delete S.hold[t];
+    
+    if(ST2.marketImpact) {
+      var impactS = Math.min(0.20, shq * 0.0005);
+      S.px[t] = S.px[t] * (1 - impactS);
+      S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift();
+      BMSG="✅ Sotildi: $"+fm(vq)+" (Narx tushdi!)";
+    } else {
+      BMSG="✅ Sotildi: $"+fm(vq);
+    }
+    if(sin)sin.value="";
+  }
+ }
+ else if(a==="b"){
+   var H=S.hold[t]||(S.hold[t]={sh:0,cost:0});
+   if(b.dataset.v==="1x"){
+     var onePrice = S.px[t];
+     if(S.cash >= onePrice){
+       H.sh += 1; H.cost += onePrice; S.cash -= onePrice;
+       if(ST2.marketImpact) {
+         S.px[t] = S.px[t] * 1.002; 
+         S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift();
+       }
+       BMSG="✅ 1 dona sotib olindi.";
+     } else { BMSG="1 dona olish uchun pul yetarli emas."; }
+   } else {
+     var amt=+b.dataset.v||S.cash;amt=Math.min(amt,S.cash);if(amt<.01)return;
+     var sharesB = amt/S.px[t];
+     H.sh+=sharesB;H.cost+=amt;S.cash=Math.max(0,S.cash-amt);
+     
+     if(ST2.marketImpact) {
+       var impactB = Math.min(0.20, sharesB * 0.0005);
+       S.px[t] = S.px[t] * (1 + impactB);
+       S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift();
+     }
+   }
+ }
+ else if(a==="s"){
+   var H2=S.hold[t];if(!H2)return;var fr=+b.dataset.f,sh=H2.sh*fr,v=sh*S.px[t],c=H2.cost*fr;
+   S.cash+=v;S.real+=v-c;H2.sh-=sh;H2.cost-=c;
+   if(H2.sh<1e-6||fr===1)delete S.hold[t];
+   
+   if(ST2.marketImpact) {
+     var impactS2 = Math.min(0.20, sh * 0.0005);
+     S.px[t] = S.px[t] * (1 - impactS2);
+     S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift();
+   }
+ }
+ else if(a==="sc"){var c1=val("si").toUpperCase();
+  if(!c1)MSG="Promokodni yozing.";
+  else if(c1==="BOSHIDAN"){newGame();DET=null;TAB="w";MSG="🔄 Hammasi boshidan boshlandi. Admin paneli oʻchdi."}
+  else if(c1!==SM[t].c)MSG="Bunday promokod yoʻq.";
+  else if(isOff(c1))MSG="Bu promokod hozir oʻchirilgan.";
+  else if(S.used.indexOf("s:"+t)>=0)MSG="Bu promokod allaqachon ishlatilgan.";
+  else{S.used.push("s:"+t);pump(t);return}}
+ else if(a==="pc"){var c2=val("pi").toUpperCase();
+  if(!c2)MSG="Promokodni yozing.";
+  else if(c2==="BOSHIDAN"){newGame();MSG="🔄 Hammasi boshidan boshlandi. Admin paneli oʻchdi."}
+  else if(allCodes()[c2]!==undefined){
+   if(isOff(c2))MSG="Bu promokod hozir oʻchirilgan.";
+   else if(S.used.indexOf("m:"+c2)>=0)MSG="Bu promokod allaqachon ishlatilgan.";
+   else{S.used.push("m:"+c2);S.cash+=allCodes()[c2];MSG="Qabul qilindi! +$"+allCodes()[c2]}}
+  else{ tryAdmin(c2); return; }}
+ else if(a==="nk"){var nm=val("nk").replace(/[<>&"'`]/g,"").slice(0,16);if(nm.length<2)MSG="Ism kamida 2 ta belgi boʻlsin.";else{S.nick=nm;MSG="Ism saqlandi ✅";pushNow(true)}}
+ else if(S.admin&&a==="am"){var m=parseAmt(val("am"));if(m>0){S.cash+=m;MSG=""}else MSG="Miqdorni raqam bilan yozing (masalan: 100k, 2.5m).";}
+ else if(S.admin&&a==="ap"){var pt=document.getElementById("as").value,np=parseAmt(val("ap"));if(np>=.05&&SM[pt]){MSG="Narx 3 soniyaga oʻzgardi (hamma uchun) ✅";pulseSet(pt,np);return}else MSG="Narxni toʻgʻri yozing ($0.05 dan)."}
+ else if(S.admin&&a==="af"){var pf=document.getElementById("as").value,nf=parseAmt(val("ap"));if(nf>=.05&&SM[pf]){MSG="Narx butun umrga oʻrnatildi ✅";fxSet(pf,nf);return}else MSG="Narxni toʻgʻri yozing ($0.05 dan)."}
+ else if(S.admin&&a==="ar2"){var pr=document.getElementById("as").value;if(SM[pr]){MSG="Narx asl holiga qaytarildi ✅";fxSet(pr,0);return}}
+ else if(S.admin&&a==="ar3"){var adm=AL.filter(function(x){return x.id===t})[0]||{};MSG="Admin chiqarildi ✅";if(DB)DB.doc("admins/"+t).set({nick:adm.nick||"",ts:adm.ts||Date.now(),revoked:true}).catch(function(){MSG="Xato: chiqarib boʻlmadi.";render()})}
+ else if(S.admin&&a==="au"){var adn=AL.filter(function(x){return x.id===t})[0]||{};MSG="Qaytarildi. U admin kodini qayta kiritishi kerak ✅";if(DB)DB.doc("admins/"+t).set({nick:adn.nick||"",ts:adn.ts||Date.now(),revoked:false}).catch(function(){MSG="Xato.";render()})}
+ else if(S.admin&&a==="bk1"){var bl=ST2.blocked.slice(),bi=bl.indexOf(t);if(bi>=0)bl.splice(bi,1);else bl.push(t);MSG="";setCfg({blocked:bl});return}
+ else if(S.admin&&a==="cdel"){MSG="Admin kodi oʻchirildi.";setCfg({codes2:ST2.codes2.filter(function(x){return x.h!==t}),blocked:ST2.blocked.filter(function(x){return x!==t})});return}
+ else if(S.admin&&a==="nca"){MSG="Lokal admin kodlar hozircha faqat ADMIN2024 paroli orqali ishlaydi.";render();return;}
+ else if(S.admin&&(a==="lkg"||a==="lkx")){
+  var lks=document.getElementById("lk_p"),who=lks?lks.value:"me",lsec=a==="lkx"?0:parseDur(val("lk_s")),lpct=a==="lkx"?0:Math.min(100,Math.max(1,parseFloat(val("lk_c"))||100));
+  if(a==="lkg"&&!(lsec>0)){MSG="Soniyani yozing (masalan: 100 yoki 100s, 2m).";render();return}
+  sendLuck(who,lsec,lpct);return}
+ else if(S.admin&&a==="upk"){var kv=parseFloat(val("up_k"));if(!(kv>=.1&&kv<=5)){MSG="Koeffitsiyent 0.1 dan 5 gacha boʻlsin.";render();return}MSG="Upgrade koeffitsiyenti saqlandi ✅";setCfg({upK:kv});return}
+ else if(S.admin&&a==="po"){MSG="";setCfg({allOff:!ST2.allOff});return}
+ else if(S.admin&&a==="co"){var ofs=ST2.off.slice(),ix=ofs.indexOf(t);if(ix>=0)ofs.splice(ix,1);else ofs.push(t);MSG="";setCfg({off:ofs});return}
+ else if(S.admin&&a==="ao"){MSG="";setCfg({adOn:!ST2.adOn});return}
+ else if(S.admin&&a==="toggleMarket"){MSG="";setCfg({marketImpact:!ST2.marketImpact});return}
+ else if(S.admin&&a==="asv"){var rw=parseAmt(val("ad_r")),sc=Math.floor(+val("ad_s")),cl=Math.floor(+val("ad_c")),tx=val("ad_t").replace(/[<>&"'`]/g,"").slice(0,200);
+  if(!(rw>=0)||!(sc>=1&&sc<=60)||!(cl>=0&&cl<=86400)){MSG="Mukofot, soniya (1–60) va kutish vaqtini toʻgʻri yozing.";render();return}
+  MSG="Reklama sozlamasi saqlandi ✅";setCfg({adReward:rw,adSecs:sc,adCool:cl,adText:tx||ST2.adText,adVideo:""});return}
+ else if(a==="adv"){adStart();return}
+ else if(S.admin&&a==="cn"){addCode(val("cn").toUpperCase(),parseAmt(val("ca")));return}
+ else if(S.admin&&a==="cd"){delCode(t);return}
+ else if(S.admin&&a==="lc"){lcmd(b);return}
+ else if(a==="gs"){gsend();return}
+ else if(a==="tkm"){TT.mode=b.dataset.v;TT.res=""}
+ else if(a==="tks"){TT.t=t;TT.res=""}
+ else if(a==="tkq"){var qi=document.getElementById("tt_a"),qm=TT.mode==="stock"?(S.hold[TT.t]&&SM[TT.t]?S.hold[TT.t].sh*S.px[TT.t]:0):S.cash;if(qi)qi.value=(qm*(+b.dataset.v)).toFixed(2);return}
+ else if(a==="tp"){ttGo(b.dataset.v);return}
+ else if(a==="uL"){UPG.t=t;UPG.n=1;UPG.res="";UPG.last=0}
+ else if(a==="uT"){UPG.tt=t;UPG.ta=1;UPG.res="";UPG.last=0}
+ else if(a==="lm"){UPG.n=Math.max(1,UPG.n-1);UPG.res="";UPG.last=0}
+ else if(a==="lp"){UPG.n=UPG.n+1;UPG.res="";UPG.last=0}
+ else if(a==="tm"){UPG.ta=Math.max(1,UPG.ta-1);UPG.res="";UPG.last=0}
+ else if(a==="tpa"){UPG.ta=Math.min(1e12,UPG.ta+1);UPG.res="";UPG.last=0}
+ else if(a==="um"){upQuick("x",+b.dataset.v)}
+ else if(a==="up"){upQuick("p",+b.dataset.v)}
+ else if(a==="ug"){upGo();return}
+ else if(S.admin&&a==="an"){addStock(val("sn"),val("st"),parseAmt(val("sp")),+val("sv"),val("sk"));return}
+ else if(S.admin&&a==="dn"){delStock(t);return}
+ else if(S.admin&&a==="dp"){var dq=parseAmt(val("dp"));if(dq>=.05&&SM[t]){pulseSet(t,dq);return}else MSG="Narxni toʻgʻri yozing ($0.05 dan)."}
+ else if(S.admin&&a==="df"){var dfq=parseAmt(val("dp"));if(dfq>=.05&&SM[t]){MSG="Narx butun umrga oʻrnatildi ✅";fxSet(t,dfq);return}else MSG="Narxni toʻgʻri yozing ($0.05 dan)."}
+ else if(S.admin&&a==="dr"){if(SM[t]){MSG="Narx asl holiga qaytarildi ✅";fxSet(t,0);return}}
+ else if(S.admin&&a==="ar"){S.used=[]}
+ else if(S.admin&&a==="ax"){S.admin=false}
+ save();render()}
+
+document.addEventListener("click",act);
+document.addEventListener("pointerdown",function(){down=true});
+document.addEventListener("pointerup",function(){down=false});
+document.addEventListener("pointercancel",function(){down=false});
+setInterval(function(){step();save();var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},4000);
+
+if(window.claude&&claude.use)claude.use("db").then(function(d){
+ if(!d)return;DB=d;
+ 
+ DB.doc("config/stocks").onSnapshot(function(s){var x=s.exists?(s.data()||{}):{};CFG.stocks=Array.isArray(x.list)?x.list.map(function(a){return Object.assign({},a)}):[];applyStocks();var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});
+ DB.doc("config/settings").onSnapshot(function(s){ST2=normCfg(s.exists?(s.data()||{}):S.cfg2);applyCfg2();var ae=document.activeElement;if(!down&&!AD&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});
+ DB.doc("config/promos").onSnapshot(function(s){var x=s.exists?(s.data()||{}):{};CFG.codes=x.codes&&typeof x.codes==="object"?Object.assign({},x.codes):{};var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});
+}).catch(function(){});
+
+if(window.claude&&claude.use)Promise.all([claude.use("db"),claude.use("user")]).then(function(r){
+ var d=r[0],U=r[1];if(!d||!U)return;
+ return Promise.resolve(U.id()).then(function(id){
+  DB=d;UID=id;
+  
+  DB.collection("players").onSnapshot(function(s){LP=s.docs.map(function(q){var x=Object.assign({},q.data()||{});x.id=q.id;return x});var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});
+  
+  DB.doc("cmds/"+UID).onSnapshot(function(s){
+   if(!s.exists)return;var d2=s.data()||{};if(!d2.n||d2.n===S.cn)return;S.cn=d2.n;
+   if(d2.luck)applyLuck(d2.luck);
+   else if(d2.hide)S.hidden=true;
+   else if(typeof d2.add==="number")S.cash=Math.max(0,S.cash+d2.add);
+   else if(typeof d2.set==="number"){S.cash=Math.max(0,d2.set);S.hold={}}
+   save();pushNow(true);render()},function(){});
+   
+  DB.collection("gifts").onSnapshot(function(s){
+   S.got=S.got||[];S.inbox=S.inbox||[];var ch=false;
+   s.docs.forEach(function(q){var d=q.data()||{};if(d.to!==UID||S.got.indexOf(q.id)>=0||!(+d.a>0))return;
+    S.got.push(q.id);if(S.got.length>300)S.got.shift();
+    if(d.type==="card") { S.card += +d.a; } else { S.cash += +d.a; }
+    S.inbox.unshift({w:String(d.fn||"?").slice(0,16),a:+d.a});S.inbox=S.inbox.slice(0,10);ch=true;
+    DB.doc("gifts/"+q.id).delete().catch(function(){})});
+   if(ch){save();pushNow(true);var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()}},function(){});
+   
+  DB.collection("admins").onSnapshot(function(s){
+   AL=s.docs.map(function(q){var x=Object.assign({},q.data()||{});x.id=q.id;return x});
+   var me=AL.filter(function(x){return x.id===UID})[0];if(me&&me.revoked&&S.admin){S.admin=false;MSG="Admin huquqingiz olib tashlandi.";save()}
+   var ae=document.activeElement;if(!down&&!AD&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});
+   
+  regAdmin();
+  pushNow(true);setInterval(pushNow,8000);render();
+  
+ }).catch(function(){});
+});
+
+for(var pk in S.pp)unpump(pk);
+render();
+</script>
+</body>
+</html>
