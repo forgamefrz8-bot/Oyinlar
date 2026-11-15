@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Plastik Bank O'yini</title>
+<title>Bank O'yini</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%92%B3%3C/text%3E%3C/svg%3E">
 <style>
-:root{--bg:#f4f7f5;--card:#fff;--tx:#18231d;--mu:#6b7a72;--ac:#16a34a;--rd:#dc2626;--bar:#e3e9e5;--blue:#2563eb;--dark:#1e293b;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#f4f7f5;--card:#fff;--tx:#18231d;--mu:#6b7a72;--ac:#16a34a;--rd:#dc2626;--bar:#e3e9e5;--blue:#2563eb;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1511;--card:#17211b;--tx:#e8f1ec;--mu:#8fa196;--ac:#34d399;--rd:#f87171;--bar:#26332b;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#0e1511;--card:#17211b;--tx:#e8f1ec;--mu:#8fa196;--ac:#34d399;--rd:#f87171;--bar:#26332b;color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -45,34 +45,23 @@ body{max-width:480px;margin:0 auto;padding:14px;padding-bottom:80px}
 .pb{display:block;width:100%}
 h4{margin:0 0 2px;font-size:15px}
 
-/* BANK KARTASI DIZAYNI */
+/* PLASTIK KARTA DIZAYNI */
 .bank-card {
-  background: linear-gradient(135deg, #1e293b, #0f172a);
+  background: linear-gradient(135deg, #0f172a, #1e293b);
   border-radius: 20px;
   padding: 24px;
   color: #fff;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
   position: relative;
   overflow: hidden;
   margin-bottom: 16px;
 }
 .bank-card::before {
-  content: '';
-  position: absolute;
-  top: -50%; right: -50%; width: 200%; height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-  transform: rotate(30deg);
+  content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 60%); transform: rotate(30deg);
 }
-.card-chip {
-  width: 40px; height: 30px;
-  background: linear-gradient(135deg, #fbbf24, #d97706);
-  border-radius: 6px;
-  margin-bottom: 20px;
-  position: relative;
-}
-.card-chip::after {
-  content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: rgba(0,0,0,0.2); transform: translateY(-50%);
-}
+.card-chip { width: 40px; height: 30px; background: linear-gradient(135deg, #fbbf24, #d97706); border-radius: 6px; margin-bottom: 20px; position: relative; }
+.card-chip::after { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: rgba(0,0,0,0.2); transform: translateY(-50%); }
 .card-number { font-size: 20px; letter-spacing: 3px; font-family: monospace; margin-bottom: 20px; }
 .card-info { display: flex; justify-content: space-between; font-size: 12px; text-transform: uppercase; color: #94a3b8; }
 .card-info b { color: #fff; font-size: 14px; display: block; margin-top: 4px; letter-spacing: 1px; }
@@ -122,7 +111,6 @@ var FIREBASE_CONFIG={
 })();
 </script>
 <script>
-// IPHONE AKSIYASI QO'SHILDI (Narxi qimmat)
 var ST=[
 {t:"QSH",n:"Quyosh Energiya",p:2.4,v:.035,d:.002,c:"QUYOSH"},
 {t:"TZK",n:"Tezkor Yetkazish",p:1.1,v:.06,d:.001,c:"TEZKOR"},
@@ -140,10 +128,13 @@ var ADMIN_PASS="ADMIN2024";
 var DB=null,CFG={codes:{},stocks:[]};
 var ST2={upK:.9,allOff:false,off:[],blocked:[],codes2:[],adOn:true,adVideo:"",adReward:1,adSecs:5,adCool:30,adText:"Homiy reklamasi",pulse:null,fx:{},marketImpact:true};
 var BMSG="";
-var K="aksiya2",S=null,TAB="w",DET=null,MSG="",down=false,rsT=0;
+var K="aksiya5",S=null,TAB="w",DET=null,MSG="",down=false,rsT=0;
 
-// Bank hisobi (Karta raqami tasodifiy generatsiya qilinadi, 1 marta)
-function fresh(){var px={},h={};ST.forEach(function(s){px[s.t]=s.p;h[s.t]=[s.p]});var cnum="8600 0000 "+Math.floor(1000+Math.random()*9000)+" "+Math.floor(1000+Math.random()*9000);return{cash:10,card:0,cardNum:cnum,hold:{},px:px,h:h,real:0,t:Date.now(),seen:false,admin:false,used:[],pp:{},custom:{},cstocks:[],inbox:[],got:[]}}
+function fresh(){
+ var px={},h={};ST.forEach(function(s){px[s.t]=s.p;h[s.t]=[s.p]});
+ var cnum="8600 0000 "+Math.floor(1000+Math.random()*9000)+" "+Math.floor(1000+Math.random()*9000);
+ return{cash:10,card:0,cardNum:cnum,hold:{},px:px,h:h,real:0,t:Date.now(),seen:false,admin:false,used:[],pp:{},custom:{},cstocks:[],inbox:[],got:[]}
+}
 try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
 if(!S||!S.px)S=fresh();
 if(S.card===undefined){S.card=0;S.cardNum="8600 0000 "+Math.floor(1000+Math.random()*9000)+" "+Math.floor(1000+Math.random()*9000);}
@@ -160,7 +151,6 @@ function applyStocks(){
  for(var t in S.hold)if(!SM[t]){S.cash+=S.hold[t].sh*(S.px[t]||0);delete S.hold[t]}
  for(var q in S.pp)if(!SM[q])delete S.pp[q];
  if(DET&&!SM[DET])DET=null}
-function newGame(){var nk=S.nick,hd=S.hidden,cn=S.cn,gt=S.got;S=fresh();S.got=gt||[];S.cstocks=[];S.nick=nk;S.hidden=hd;S.cn=cn;applyStocks()}
 function stockList(){var h="";customStocks().forEach(function(s){h+='<span>'+s.n+' ('+s.t+') <button class="rs" data-a="dn" data-t="'+s.t+'" style="margin:0 8px 0 2px">×</button></span> '});return h||"yoʻq"}
 applyStocks();
 function allCodes(){var o={},k;for(k in MC)o[k]=MC[k];for(k in CFG.codes)if(+CFG.codes[k]>0)o[k]=+CFG.codes[k];for(k in S.custom)o[k]=S.custom[k];return o}
@@ -194,16 +184,14 @@ function unpump(t){
  S.px[t]=S.pp[t];delete S.pp[t];S.h[t].push(S.px[t]);if(S.h[t].length>40)S.h[t].shift();
  if(DET===t)MSG="Narx oldingi holatiga qaytdi.";save();render()}
 
-// HAMYON (Endi Naqd va Karta ko'rinadi)
 function wallet(){
  var v=worth(),tot=S.cash+S.card+v,pl=tot-10,h="";
  if(!S.seen)h+='<div class="card gift"><b>🎁 Xush kelibsiz!</b><div>Sizga <b>$10</b> sovgʻa qilindi. Aksiya sotib oling yoki bankka qoʻying.</div><button data-a="ok">Boshlash</button></div>';
  h+='<div class="bank-card"><div class="card-chip"></div><div class="card-balance"><span class="mu" style="color:#94a3b8;font-size:10px">KARTA BALANSI</span><b>$'+f(S.card)+'</b></div><div class="card-number">'+S.cardNum+'</div><div class="card-info"><div>KARTA EGASI<b>'+(S.nick||"O'yinchi").toUpperCase()+'</b></div><div>MUDDAT<b>12/29</b></div></div><div class="card-logo">UZCARD</div></div>';
- h+='<div class="card"><div class="mu">Naqd pul (Qo\'lda)</div><div class="n">$'+f(S.cash)+'</div><div class="bt"><button class="b" data-a="toCard">💳 Kartaga o\'tkazish</button></div></div>';
+ h+='<div class="card"><div class="mu">Naqd pul (Qo\'lda)</div><div class="n">$'+f(S.cash)+'</div><div class="bt"><button class="b" data-a="toCard">💳 Hammasini Kartaga o\'tkazish</button></div></div>';
  h+='<div class="card"><div class="row"><span class="mu">Aksiyalar qiymati</span><b>$'+f(v)+'</b></div><div class="row" style="margin-top:8px"><span class="mu">Jami boylik</span><b>$'+f(tot)+'</b></div><div class="row" style="margin-top:8px"><span class="mu">Umumiy foyda / zarar</span><b class="'+(pl>=0?"up":"dn")+'">'+sg(pl)+'</b></div><div class="row" style="margin-top:8px"><span class="mu">Sotishdan olingan foyda</span><b class="'+(S.real>=0?"up":"dn")+'">'+sg(S.real)+'</b></div></div>';
  return h}
 
-// BANK BO'LIMI (O'tkazmalar)
 function bankView(){
  var h='<div class="bank-card"><div class="card-chip"></div><div class="card-balance"><span class="mu" style="color:#94a3b8;font-size:10px">KARTA BALANSI</span><b>$'+f(S.card)+'</b></div><div class="card-number">'+S.cardNum+'</div><div class="card-info"><div>KARTA EGASI<b>'+(S.nick||"O'yinchi").toUpperCase()+'</b></div><div>MUDDAT<b>12/29</b></div></div><div class="card-logo">UZCARD</div></div>';
  
@@ -223,20 +211,19 @@ function bankView(){
  return h;
 }
 
-// OLISH (QARZ) BO'LIMI - Pastida plastik karta
 function borrowView(){
- var h='<div class="card"><h4>💳 Kredit / Qarz olish</h4><div class="mu">Agar pulingiz $0 bo\'lib qolsa, plastik karta orqali qarz olishingiz mumkin.</div>';
- h+='<div class="n" style="font-size:28px">$'+f(S.cash+S.card)+'</div><div class="mu">Umumiy hisobingiz</div>';
+ var h='<div class="card"><h4>💳 Kredit / Qarz olish</h4><div class="mu">Agar naqd pulingiz $10 dan kam bo\'lib qolsa, plastik karta orqali qarz olishingiz mumkin.</div>';
+ h+='<div class="n" style="font-size:28px">$'+f(S.cash)+'</div><div class="mu">Naqd pulingiz</div>';
  
- if((S.cash+S.card) < 10) {
+ if(S.cash < 10) {
    h+='<div class="card" style="margin-top:16px;background:var(--bar);text-align:center;padding:20px"><b>Kartangizga $10 qarz qo\'shish uchun pastdagi tugmani bosing.</b></div>';
    h+='<button class="pb" style="padding:16px;font-size:16px" data-a="borrow">💳 Plastik kartaga $10 qarz olish</button>';
  } else {
-   h+='<div class="mu" style="margin-top:20px;text-align:center;color:var(--ac)">Sizda yetarli mablag\' bor. Qarz olish faqat pulingiz $10 dan kam bo\'lganda ishlaydi.</div>';
+   h+='<div class="mu" style="margin-top:20px;text-align:center;color:var(--ac)">Sizda yetarli naqd pul bor. Qarz olish faqat naqd pulingiz $10 dan kam bo\'lganda ishlaydi.</div>';
  }
  h+='</div>';
  
- h+='<div class="bank-card" style="opacity:0.7;margin-top:20px"><div class="card-chip"></div><div class="card-balance"><span class="mu" style="color:#94a3b8;font-size:10px">KREDIT KARTASI</span><b>$'+f(S.card)+'</b></div><div class="card-number">9860 0000 0000 0000</div><div class="card-info"><div>EGASI<b>KREDIT</b></div><div>MUDDAT<b>12/30</b></div></div><div class="card-logo">HUMO</div></div>';
+ h+='<div class="bank-card" style="background: linear-gradient(135deg, #064e3b, #16a34a); opacity: 0.85; margin-top:20px; box-shadow: 0 10px 25px rgba(22, 163, 74, 0.4);"><div class="card-chip"></div><div class="card-balance"><span class="mu" style="color:#a7f3d0;font-size:10px">KREDIT KARTASI</span><b>$'+f(S.card)+'</b></div><div class="card-number">9860 0000 0000 0000</div><div class="card-info" style="color:#a7f3d0"><div>EGASI<b style="color:#fff">KREDIT</b></div><div>MUDDAT<b style="color:#fff">12/30</b></div></div><div class="card-logo" style="color:#fff">HUMO</div></div>';
  
  return h;
 }
@@ -296,7 +283,6 @@ function render(){
  document.getElementById("app").innerHTML=DET?detail(DET):TAB==="w"?wallet():TAB==="m"?market():TAB==="p"?port():TAB==="b"?bankView():TAB==="l"?borrowView():TAB==="g"?giftView():TAB==="a"?adView():TAB==="u"?upView():TAB==="t"?ttView():port();
 }
 
-// Bank o'tkazmalari mantiqi
 function transfer() {
  var c2k = document.getElementById("ba_c2k"), k2c = document.getElementById("ba_k2c");
  if(c2k && c2k.value) {
@@ -311,7 +297,6 @@ function transfer() {
  }
 }
 
-// Bankdan pul o'tkazish (Gift orqali)
 function gsend(){
  var to=val("gt"),a=parseAmt(val("ga"));
  if(!DB||!UID||!S.nick||!to||to===UID)return;
@@ -346,7 +331,6 @@ function adminSettings(){
  h+='<div class="mu" style="margin-top:8px">Alohida kodlar (bosib yoqing yoki oʻchiring):</div><div>'+L.map(function(c){var off=ST2.off.indexOf(c)>=0;return'<button class="pb" style="display:inline-block;width:auto;margin:4px 4px 0 0;padding:7px 10px;'+(off?'background:var(--rd)':'')+'" data-a="co" data-t="'+esc(c)+'">'+esc(c)+(off?" ❌":" ✅")+'</button>'}).join("")+'</div>';
  h+='<h4 style="margin-top:12px">⬆️ Upgrade sozlamasi</h4><div class="mu">Ehtimol = tikilgan ÷ maqsad × koeffitsiyent (standart 0.9).</div><input class="fi" id="up_k" type="text" autocomplete="off" placeholder="Koeffitsiyent" value="'+ST2.upK+'"><button class="pb" data-a="upk">Koeffitsiyentni saqlash</button><h4 style="margin-top:12px">📺 Reklama sozlamasi</h4><button class="pb" data-a="ao"'+(ST2.adOn?'':' style="background:var(--rd)"')+'>Reklama bo‘limi: '+(ST2.adOn?"✅ yoqilgan":"❌ oʻchirilgan")+'</button>';
  h+='<input class="fi" id="ad_r" type="text" autocomplete="off" placeholder="Mukofot ($)" value="'+ST2.adReward+'"><input class="fi" id="ad_s" type="number" min="1" max="60" placeholder="Reklama davomiyligi (soniya)" value="'+ST2.adSecs+'"><input class="fi" id="ad_c" type="number" min="0" placeholder="Keyingi reklamagacha kutish (soniya)" value="'+ST2.adCool+'"><input class="fi" id="ad_t" maxlength="200" placeholder="Reklama matni" value="'+esc(ST2.adText)+'"><button class="pb" data-a="asv">Reklamani saqlash</button>';
- 
  h+='<h4 style="margin-top:12px">📈 Bozor Sozlamasi</h4>';
  h+='<button class="pb" data-a="toggleMarket"'+(ST2.marketImpact?'':' style="background:var(--rd)"')+'>Bozor ta\'siri (Narx oshishi): '+(ST2.marketImpact?"✅ Yoqilgan":"❌ O\'chirilgan")+'</button>';
  return h}
@@ -514,15 +498,13 @@ function act(e){
  else if(a==="bk"){DET=null;MSG=""}
  else if(a==="ok"){S.seen=true}
  else if(a==="borrow"){
-   if(S.cash+S.card < 10) { S.card += 10; MSG="💳 Plastik kartangizga $10 qarz qo'shildi!"; save(); pushNow(true); }
+   if(S.cash < 10) { S.card += 10; MSG="💳 Plastik kartangizga $10 qarz qo'shildi!"; save(); pushNow(true); }
  }
  else if(a==="toCard"){
    var amount = S.cash;
    if(amount > 0) { S.cash -= amount; S.card += amount; MSG="Naqd pul ($"+fm(amount)+") kartaga o'tkazildi!"; save(); }
  }
- else if(a==="c2k" || a==="k2c"){
-   transfer();
- }
+ else if(a==="c2k" || a==="k2c"){ transfer(); }
  else if(a==="bx"){
   var bin=document.getElementById("bi_"+t)||document.getElementById("bd"),bv=bin?parseAmt(bin.value):NaN;
   if(!(bv>=.01))BMSG="Pul miqdorini yozing (masalan: 100, 5k, 2M).";
@@ -531,15 +513,12 @@ function act(e){
     var HB=S.hold[t]||(S.hold[t]={sh:0,cost:0});
     var sharesBought = bv/S.px[t];
     HB.sh+=sharesBought; HB.cost+=bv; S.cash=Math.max(0,S.cash-bv);
-    
     if(ST2.marketImpact) {
       var priceImpact = Math.min(0.20, sharesBought * 0.0005);
       S.px[t] = S.px[t] * (1 + priceImpact);
       S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift();
       BMSG="✅ Sotib olindi: $"+fm(bv)+" (Narx oshdi!)";
-    } else {
-      BMSG="✅ Sotib olindi: $"+fm(bv);
-    }
+    } else { BMSG="✅ Sotib olindi: $"+fm(bv); }
     if(bin)bin.value="";
   }
  }
@@ -551,15 +530,12 @@ function act(e){
     var fq=Math.min(1,sv/hv),shq=HS2.sh*fq,vq=shq*S.px[t],cq=HS2.cost*fq;
     S.cash+=vq;S.real+=vq-cq;HS2.sh-=shq;HS2.cost-=cq;
     if(HS2.sh<1e-6||fq>=.999999)delete S.hold[t];
-    
     if(ST2.marketImpact) {
       var impactS = Math.min(0.20, shq * 0.0005);
       S.px[t] = S.px[t] * (1 - impactS);
       S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift();
       BMSG="✅ Sotildi: $"+fm(vq)+" (Narx tushdi!)";
-    } else {
-      BMSG="✅ Sotildi: $"+fm(vq);
-    }
+    } else { BMSG="✅ Sotildi: $"+fm(vq); }
     if(sin)sin.value="";
   }
  }
@@ -569,34 +545,21 @@ function act(e){
      var onePrice = S.px[t];
      if(S.cash >= onePrice){
        H.sh += 1; H.cost += onePrice; S.cash -= onePrice;
-       if(ST2.marketImpact) {
-         S.px[t] = S.px[t] * 1.002; 
-         S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift();
-       }
+       if(ST2.marketImpact) { S.px[t] = S.px[t] * 1.002; S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift(); }
        BMSG="✅ 1 dona sotib olindi.";
      } else { BMSG="1 dona olish uchun pul yetarli emas."; }
    } else {
      var amt=+b.dataset.v||S.cash;amt=Math.min(amt,S.cash);if(amt<.01)return;
      var sharesB = amt/S.px[t];
      H.sh+=sharesB;H.cost+=amt;S.cash=Math.max(0,S.cash-amt);
-     
-     if(ST2.marketImpact) {
-       var impactB = Math.min(0.20, sharesB * 0.0005);
-       S.px[t] = S.px[t] * (1 + impactB);
-       S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift();
-     }
+     if(ST2.marketImpact) { var impactB = Math.min(0.20, sharesB * 0.0005); S.px[t] = S.px[t] * (1 + impactB); S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift(); }
    }
  }
  else if(a==="s"){
    var H2=S.hold[t];if(!H2)return;var fr=+b.dataset.f,sh=H2.sh*fr,v=sh*S.px[t],c=H2.cost*fr;
    S.cash+=v;S.real+=v-c;H2.sh-=sh;H2.cost-=c;
    if(H2.sh<1e-6||fr===1)delete S.hold[t];
-   
-   if(ST2.marketImpact) {
-     var impactS2 = Math.min(0.20, sh * 0.0005);
-     S.px[t] = S.px[t] * (1 - impactS2);
-     S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift();
-   }
+   if(ST2.marketImpact) { var impactS2 = Math.min(0.20, sh * 0.0005); S.px[t] = S.px[t] * (1 - impactS2); S.h[t].push(S.px[t]); if(S.h[t].length>40) S.h[t].shift(); }
  }
  else if(a==="sc"){var c1=val("si").toUpperCase();
   if(!c1)MSG="Promokodni yozing.";
@@ -670,7 +633,6 @@ setInterval(function(){step();save();var ae=document.activeElement;if(!down&&!(a
 
 if(window.claude&&claude.use)claude.use("db").then(function(d){
  if(!d)return;DB=d;
- 
  DB.doc("config/stocks").onSnapshot(function(s){var x=s.exists?(s.data()||{}):{};CFG.stocks=Array.isArray(x.list)?x.list.map(function(a){return Object.assign({},a)}):[];applyStocks();var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});
  DB.doc("config/settings").onSnapshot(function(s){ST2=normCfg(s.exists?(s.data()||{}):S.cfg2);applyCfg2();var ae=document.activeElement;if(!down&&!AD&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});
  DB.doc("config/promos").onSnapshot(function(s){var x=s.exists?(s.data()||{}):{};CFG.codes=x.codes&&typeof x.codes==="object"?Object.assign({},x.codes):{};var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});
@@ -680,9 +642,7 @@ if(window.claude&&claude.use)Promise.all([claude.use("db"),claude.use("user")]).
  var d=r[0],U=r[1];if(!d||!U)return;
  return Promise.resolve(U.id()).then(function(id){
   DB=d;UID=id;
-  
   DB.collection("players").onSnapshot(function(s){LP=s.docs.map(function(q){var x=Object.assign({},q.data()||{});x.id=q.id;return x});var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});
-  
   DB.doc("cmds/"+UID).onSnapshot(function(s){
    if(!s.exists)return;var d2=s.data()||{};if(!d2.n||d2.n===S.cn)return;S.cn=d2.n;
    if(d2.luck)applyLuck(d2.luck);
@@ -690,7 +650,6 @@ if(window.claude&&claude.use)Promise.all([claude.use("db"),claude.use("user")]).
    else if(typeof d2.add==="number")S.cash=Math.max(0,S.cash+d2.add);
    else if(typeof d2.set==="number"){S.cash=Math.max(0,d2.set);S.hold={}}
    save();pushNow(true);render()},function(){});
-   
   DB.collection("gifts").onSnapshot(function(s){
    S.got=S.got||[];S.inbox=S.inbox||[];var ch=false;
    s.docs.forEach(function(q){var d=q.data()||{};if(d.to!==UID||S.got.indexOf(q.id)>=0||!(+d.a>0))return;
@@ -699,18 +658,12 @@ if(window.claude&&claude.use)Promise.all([claude.use("db"),claude.use("user")]).
     S.inbox.unshift({w:String(d.fn||"?").slice(0,16),a:+d.a});S.inbox=S.inbox.slice(0,10);ch=true;
     DB.doc("gifts/"+q.id).delete().catch(function(){})});
    if(ch){save();pushNow(true);var ae=document.activeElement;if(!down&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()}},function(){});
-   
   DB.collection("admins").onSnapshot(function(s){
    AL=s.docs.map(function(q){var x=Object.assign({},q.data()||{});x.id=q.id;return x});
    var me=AL.filter(function(x){return x.id===UID})[0];if(me&&me.revoked&&S.admin){S.admin=false;MSG="Admin huquqingiz olib tashlandi.";save()}
    var ae=document.activeElement;if(!down&&!AD&&!(ae&&/^(INPUT|SELECT)$/.test(ae.tagName)))render()},function(){});
-   
   regAdmin();
-  pushNow(true);setInterval(pushNow,8000);render();
-  
- }).catch(function(){});
-});
-
+  pushNow(true);setInterval(pushNow,8000);render()})}).catch(function(){});
 for(var pk in S.pp)unpump(pk);
 render();
 </script>
